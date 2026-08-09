@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organizador de Matrimonio</title>
+<style>
+  :root{
+    --bg:#faf7f4; --card:#ffffff; --ink:#2d2a32; --muted:#8a8592;
+    --line:#ece6e0; --accent:#c98b8b; --accent-dark:#a86868;
+    --gold:#c9a86a; --green:#6b9b7c; --amber:#d9a441; --red:#c96a6a;
+    --shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px}
+  header{background:linear-gradient(135deg,#c98b8b,#a86868);color:#fff;padding:22px 28px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  header h1{font-size:22px;font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+  header .sub{font-size:13px;opacity:.9;margin-top:2px;font-weight:400}
+  .top-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border:none;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;
+    background:var(--accent);color:#fff;transition:.15s;font-family:inherit}
+  .btn:hover{background:var(--accent-dark)}
+  .btn.ghost{background:rgba(255,255,255,.18);color:#fff}
+  .btn.ghost:hover{background:rgba(255,255,255,.3)}
+  .btn.light{background:#f0eae4;color:var(--ink)}
+  .btn.light:hover{background:#e6ded6}
+  .btn.sm{padding:5px 10px;font-size:12px}
+  .btn.danger{background:transparent;color:var(--red);padding:4px 8px}
+  .btn.danger:hover{background:#fbe9e9}
+  nav{background:var(--card);border-bottom:1px solid var(--line);padding:0 20px;display:flex;gap:4px;
+    overflow-x:auto;position:sticky;top:0;z-index:20}
+  nav button{background:none;border:none;padding:14px 16px;font-size:14px;font-weight:500;color:var(--muted);
+    cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;font-family:inherit;transition:.15s}
+  nav button:hover{color:var(--ink)}
+  nav button.active{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  main{max-width:1080px;margin:0 auto;padding:24px 20px 60px}
+  section{display:none;animation:fade .25s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2{font-size:19px;font-weight:600;margin-bottom:4px}
+  .section-desc{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:18px 20px;margin-bottom:18px}
+  .grid{display:grid;gap:14px}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .stat .label{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .stat .value{font-size:26px;font-weight:700;margin-top:4px}
+  .stat .meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .bar{height:7px;background:var(--line);border-radius:5px;overflow:hidden;margin-top:10px}
+  .bar > i{display:block;height:100%;background:var(--green);border-radius:5px;transition:width .4s}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;
+    letter-spacing:.4px;padding:8px 10px;border-bottom:2px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#faf6f2}
+  input,select,textarea{font-family:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);
+    border-radius:8px;background:#fff;color:var(--ink);width:100%}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .form-row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));align-items:end;margin-bottom:12px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500}
+  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+  .pill.green{background:#e6f2ea;color:#3e7a55}
+  .pill.amber{background:#fbf1dc;color:#a9781f}
+  .pill.red{background:#fbe5e5;color:#a94848}
+  .pill.gray{background:#efeae5;color:#8a8592}
+  .pill.blue{background:#e5edf7;color:#3f6699}
+  .inline-edit{border:1px solid transparent;background:transparent;padding:5px 7px}
+  .inline-edit:hover{border-color:var(--line);background:#fff}
+  .empty{text-align:center;color:var(--muted);padding:28px;font-size:13.5px}
+  .milestone{font-weight:600;color:var(--accent-dark);background:#f7efe9;padding:8px 12px;border-radius:8px;
+    margin:14px 0 8px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
+  .task{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--line)}
+  .task:last-child{border-bottom:none}
+  .task input[type=checkbox]{width:18px;height:18px;flex:none;accent-color:var(--green);cursor:pointer}
+  .task .t-name{flex:1}
+  .task.done .t-name{text-decoration:line-through;color:var(--muted)}
+  .task .t-date{font-size:12px;color:var(--muted);white-space:nowrap}
+  .money{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .right{text-align:right}
+  .add-inline{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .add-inline input{flex:1;min-width:120px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);
+    color:#fff;padding:11px 20px;border-radius:10px;font-size:13.5px;box-shadow:var(--shadow);opacity:0;
+    transition:.3s;z-index:100}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .date-set{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .countdown{font-size:13px;color:var(--muted)}
+  .countdown b{color:var(--accent-dark);font-size:15px}
+  .hero{text-align:center;background:linear-gradient(135deg,#fbe7e7,#f7efe9);padding:30px 20px}
+  .hero-num{font-size:72px;font-weight:800;color:var(--accent-dark);line-height:1;font-variant-numeric:tabular-nums}
+  .hero-label{font-size:14px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+  .hero-date{margin-top:10px;font-size:15px;color:var(--ink);text-transform:capitalize}
+  @media(max-width:640px){ .hero-num{font-size:56px} }
+  select.status-sel{width:auto;min-width:120px}
+  .b-row{cursor:pointer}
+  .b-row td:first-child::before{content:"▸";display:inline-block;margin-right:7px;color:var(--muted);transition:.15s;font-size:11px}
+  .b-row.open td:first-child::before{transform:rotate(90deg)}
+  .abono-panel{background:#faf6f2}
+  .abono-panel > td{padding:0 10px 12px 30px}
+  .abono-box{padding:10px 0}
+  .vendor-detail{margin:2px 0 12px}
+  .vendor-detail label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .vendor-detail textarea{width:100%;resize:vertical;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;box-sizing:border-box}
+  .abono-line{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .abono-line:last-child{border-bottom:none}
+  .abono-line input[type=checkbox]{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex:none}
+  .abono-line .a-date{color:var(--muted);white-space:nowrap;min-width:96px}
+  .abono-line .a-amt{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+  .abono-line.paid .a-amt{color:var(--green)}
+  .abono-line .a-fill{flex:1}
+  .abono-add{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+  .abono-add input{width:auto}
+  .comp-list{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 6px 26px}
+  .comp-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);
+    border-radius:20px;padding:4px 6px 4px 11px;font-size:12.5px}
+  .comp-chip a{color:var(--accent-dark);cursor:pointer;text-decoration:none;max-width:170px;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .comp-chip a:hover{text-decoration:underline}
+  .comp-chip .btn.danger{padding:2px 5px;font-size:11px}
+  .comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+  .comp-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .comp-card .thumb{height:120px;background:#f3ede7;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:38px;overflow:hidden}
+  .comp-card .thumb img{width:100%;height:100%;object-fit:cover}
+  .comp-card .info{padding:9px 11px}
+  .comp-card .info .cname{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .comp-card .info .cmeta{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .comp-card .actions{display:flex;gap:6px;padding:0 11px 10px}
+  .comp-group-title{font-weight:600;color:var(--accent-dark);margin:16px 0 8px;font-size:14px}
+  /* Mesas */
+  .mesas-wrap{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+  .pool{position:sticky;top:60px}
+  .pool-title,.table-title{font-weight:600;font-size:14px;margin-bottom:10px;color:var(--accent-dark)}
+  .drop-zone{min-height:60px;display:flex;flex-direction:column;gap:6px;border:2px dashed var(--line);
+    border-radius:10px;padding:8px;transition:.15s}
+  .drop-zone.over{border-color:var(--accent);background:#faf0ec}
+  .tables-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .table-card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px}
+  .table-card .thead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .table-cap{font-size:12px;color:var(--muted)}
+  .table-cap.full{color:var(--red);font-weight:600}
+  .guest-chip{display:flex;align-items:center;gap:8px;background:#f7efe9;border:1px solid var(--line);
+    border-radius:8px;padding:6px 9px;font-size:13px;cursor:grab}
+  .guest-chip:active{cursor:grabbing}
+  .guest-chip .g-fill{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .guest-chip select{width:auto;padding:2px 4px;font-size:11px;border-color:transparent;background:transparent}
+  .guest-chip .btn{padding:2px 6px}
+  /* Timeline */
+  .tl-item{display:flex;align-items:center;gap:14px;padding:10px 8px;border-bottom:1px solid var(--line)}
+  .tl-item:last-child{border-bottom:none}
+  .tl-time{font-weight:700;color:var(--accent-dark);font-variant-numeric:tabular-nums;min-width:64px;font-size:15px}
+  .tl-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:none}
+  .tl-act{flex:1}
+  /* Citas */
+  .ap-item{display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .ap-item:last-child{border-bottom:none}
+  .ap-when{background:#f7efe9;border-radius:9px;text-align:center;padding:6px 10px;min-width:60px}
+  .ap-when .d{font-size:18px;font-weight:700;color:var(--accent-dark);line-height:1}
+  .ap-when .m{font-size:11px;color:var(--muted);text-transform:uppercase}
+  .ap-body{flex:1;min-width:160px}
+  .ap-body .t{font-weight:600}
+  .ap-body .s{font-size:12.5px;color:var(--muted)}
+  .ap-past{opacity:.55}
+  /* Moodboard */
+  .mood-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .mood-card{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f3ede7;aspect-ratio:1}
+  .mood-card img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+  .mood-card .doc{display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;cursor:pointer}
+  .mood-card .del{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;border:none;
+    border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:13px}
+  /* Consejos */
+  .tip{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+  .tip summary{padding:14px 16px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .tip summary::-webkit-details-marker{display:none}
+  .tip summary::after{content:"＋";color:var(--accent);font-size:18px}
+  .tip[open] summary::after{content:"−"}
+  .tip .tip-body{padding:0 16px 14px;color:var(--ink);font-size:14px}
+  .tip .tip-body li{margin:5px 0 5px 18px}
+  @media(max-width:640px){
+    .b-row td:nth-child(2){display:table-cell}
+    .mesas-wrap{grid-template-columns:1fr}
+    .pool{position:static}
+  }
+  @media(max-width:640px){
+    header{padding:18px 18px}
+    main{padding:18px 14px 50px}
+    th:nth-child(n+4),td:nth-child(n+4){display:none}
+    .hide-mobile{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>💍 Organizador de Matrimonio</h1>
+    <div class="sub" id="headerSub">Todo lo que necesitas, en un solo lugar</div>
+  </div>
+  <div class="top-actions">
+    <button class="btn ghost" onclick="exportData()">⬇ Exportar</button>
+    <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆ Importar</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+  </div>
+</header>
+
+<nav id="nav">
+  <button data-tab="resumen" class="active">Resumen</button>
+  <button data-tab="invitados">Invitados</button>
+  <button data-tab="mesas">Mesas</button>
+  <button data-tab="presupuesto">Presupuesto</button>
+  <button data-tab="proveedores">Proveedores</button>
+  <button data-tab="tareas">Tareas</button>
+  <button data-tab="cronograma">Cronograma</button>
+  <button data-tab="citas">Citas</button>
+  <button data-tab="musica">Música</button>
+  <button data-tab="compras">Por comprar</button>
+  <button data-tab="notas">Notas</button>
+  <button data-tab="comprobantes">Comprobantes</button>
+  <button data-tab="consejos">Consejos</button>
+</nav>
+<input type="file" id="compFile" accept="image/*,application/pdf,.pdf" style="display:none" onchange="handleComprobante(event)">
+<input type="file" id="moodFile" accept="image/*,application/pdf,.pdf" style="display:none" onchange="handleMood(event)">
+
+<main>
+  <!-- RESUMEN -->
+  <section id="resumen" class="active">
+    <h2>Resumen</h2>
+    <p class="section-desc">Vista general del estado de tu boda.</p>
+    <div class="card hero" id="heroCard">
+      <div class="hero-num" id="heroDays">—</div>
+      <div class="hero-label" id="heroLabel">Selecciona la fecha de tu boda</div>
+      <div class="hero-date" id="heroDate"></div>
+    </div>
+    <div class="card">
+      <div class="date-set">
+        <div class="field" style="max-width:200px">
+          <label>Fecha de la boda</label>
+          <input type="date" id="weddingDate" onchange="setWeddingDate()">
+        </div>
+        <div class="field" style="max-width:240px">
+          <label>Nombres de la pareja</label>
+          <input type="text" id="coupleNames" placeholder="Ej. Cristian & Pareja" oninput="setCouple()">
+        </div>
+        <div class="countdown" id="countdown"></div>
+      </div>
+    </div>
+    <div class="grid stats" id="statsGrid"></div>
+  </section>
+
+  <!-- INVITADOS -->
+  <section id="invitados">
+    <h2>Lista de invitados</h2>
+    <p class="section-desc">Confirmaciones (RSVP), mesa asignada y restricciones alimentarias.</p>
+    <div class="grid stats" id="guestStats" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="form-row">
+        <div class="field"><label>Nombre</label><input id="gName" placeholder="Nombre y apellido"></div>
+        <div class="field"><label>Grupo</label><input id="gGroup" placeholder="Familia novio, amigos..."></div>
+        <div class="field"><label>Estado</label>
+          <select id="gRsvp"><option value="pendiente">Pendiente</option><option value="confirmado">Confirmado</option><option value="rechazado">No asiste</option></select>
+        </div>
+        <div class="field" style="max-width:120px"><label>Acompañantes</label><input id="gComp" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>Mesa</label><input id="gTable" placeholder="Nº"></div>
+        <div class="field"><label>Restricción</label><input id="gDiet" placeholder="Vegetariano..."></div>
+        <div class="field"><button class="btn" onclick="addGuest()">+ Agregar</button></div>
+      </div>
+      <div id="guestSummary" class="countdown" style="margin-bottom:10px"></div>
+      <table>
+        <thead><tr><th>Nombre</th><th>Grupo</th><th>Estado</th><th>Acomp.</th><th>Mesa</th><th>Restricción</th><th></th></tr></thead>
+        <tbody id="guestBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MESAS -->
+  <section id="mesas">
+    <h2>Distribución de mesas</h2>
+    <p class="section-desc">Crea tus mesas y arrastra a cada invitado para acomodarlo. En móvil, usa el botón "Asignar".</p>
+    <div class="card">
+      <div class="add-inline">
+        <input id="tblName" placeholder="Nombre de la mesa (ej. Mesa 1, Novios)">
+        <input id="tblCap" type="number" min="1" placeholder="Capacidad" style="max-width:130px;flex:none">
+        <button class="btn" onclick="addTable()">+ Agregar mesa</button>
+      </div>
+      <div class="countdown" id="mesasSummary" style="margin-top:10px"></div>
+    </div>
+    <div class="mesas-wrap">
+      <div class="card pool">
+        <div class="pool-title">Sin asignar (<span id="poolCount">0</span>)</div>
+        <div class="drop-zone" id="poolZone" ondragover="allowDrop(event)" ondrop="dropGuest(event,'')"></div>
+      </div>
+      <div id="tablesGrid" class="tables-grid"></div>
+    </div>
+  </section>
+
+  <!-- PRESUPUESTO -->
+  <section id="presupuesto">
+    <h2>Presupuesto</h2>
+    <p class="section-desc">Registra cada concepto, ve abonando por fecha y controla cuánto has pagado y cuánto falta.</p>
+    <div class="grid stats" id="budgetStats" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="form-row">
+        <div class="field"><label>Categoría</label>
+          <select id="bCat"><option>Lugar / Banquete</option><option>Ceremonia</option><option>Música</option><option>Fotografía / Video</option><option>Flores / Decoración</option><option>Vestimenta</option><option>Invitaciones</option><option>Anillos</option><option>Transporte</option><option>Luna de miel</option><option>Otros</option></select>
+        </div>
+        <div class="field"><label>Concepto</label><input id="bItem" placeholder="Descripción"></div>
+        <div class="field"><label>Costo total</label><input id="bTotal" type="number" placeholder="0" min="0"></div>
+        <div class="field"><button class="btn" onclick="addBudget()">+ Agregar concepto</button></div>
+      </div>
+      <table>
+        <thead><tr><th>Concepto</th><th class="right">Costo total</th><th class="right">Abonado</th><th class="right">Pendiente</th><th></th></tr></thead>
+        <tbody id="budgetBody"></tbody>
+        <tfoot id="budgetFoot"></tfoot>
+      </table>
+    </div>
+    <div class="card">
+      <h2 style="font-size:16px">Resumen de pagos por mes</h2>
+      <p class="section-desc" style="margin-bottom:12px">Suma de tus abonos marcados como pagados, agrupados por mes.</p>
+      <table>
+        <thead><tr><th>Mes</th><th class="right">Pagado ese mes</th><th class="right">Acumulado</th></tr></thead>
+        <tbody id="monthBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TAREAS -->
+  <section id="tareas">
+    <h2>Tareas y cronograma</h2>
+    <p class="section-desc">Checklist organizado por hitos. Marca lo completado y agrega tus propias tareas.</p>
+    <div class="card">
+      <div class="countdown" id="taskSummary" style="margin-bottom:8px"></div>
+      <div id="taskList"></div>
+      <div class="add-inline">
+        <input id="tNew" placeholder="Nueva tarea...">
+        <select id="tPhase" class="status-sel"></select>
+        <input id="tDate" type="date" style="max-width:150px">
+        <button class="btn" onclick="addTask()">+ Agregar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROVEEDORES -->
+  <section id="proveedores">
+    <h2>Proveedores</h2>
+    <p class="section-desc">Contactos y estado de contratación de cada servicio.</p>
+    <div class="card">
+      <div class="form-row">
+        <div class="field"><label>Servicio</label>
+          <select id="pCat"><option>Lugar / Banquete</option><option>Música / DJ</option><option>Fotografía</option><option>Video</option><option>Flores</option><option>Pastel</option><option>Vestido / Traje</option><option>Maquillaje</option><option>Invitaciones</option><option>Transporte</option><option>Otro</option></select>
+        </div>
+        <div class="field"><label>Nombre</label><input id="pName" placeholder="Empresa o persona"></div>
+        <div class="field"><label>Teléfono / correo</label><input id="pContact" placeholder="Contacto"></div>
+        <div class="field"><label>Costo</label><input id="pCost" type="number" placeholder="0" min="0"></div>
+        <div class="field"><label>Estado</label>
+          <select id="pStatus"><option value="buscando">Buscando</option><option value="cotizado">Cotizado</option><option value="contratado">Contratado</option></select>
+        </div>
+        <div class="field"><button class="btn" onclick="addVendor()">+ Agregar</button></div>
+      </div>
+      <p class="section-desc" style="margin:4px 0 8px">Toca el nombre de un proveedor para registrar abonos y adjuntar comprobantes.</p>
+      <table>
+        <thead><tr><th>Servicio</th><th>Nombre</th><th>Contacto</th><th class="right">Costo</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="vendorBody"></tbody>
+        <tfoot id="vendorFoot"></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- COMPROBANTES -->
+  <section id="comprobantes">
+    <h2>Comprobantes de pago</h2>
+    <p class="section-desc">Todos tus respaldos en un solo lugar. Adjúntalos en cada abono (pestaña Presupuesto) y aparecerán aquí.</p>
+    <div class="card">
+      <div class="countdown" id="compSummary" style="margin-bottom:12px"></div>
+      <div id="compGallery"></div>
+    </div>
+  </section>
+
+  <!-- CRONOGRAMA DEL DÍA -->
+  <section id="cronograma">
+    <h2>Cronograma del día</h2>
+    <p class="section-desc">El minuto a minuto del gran día, ordenado por hora automáticamente.</p>
+    <div class="card">
+      <div class="add-inline">
+        <input id="tlTime" type="time" style="max-width:130px;flex:none">
+        <input id="tlAct" placeholder="Actividad (ej. Llegada de los novios)">
+        <button class="btn" onclick="addTimeline()">+ Agregar</button>
+      </div>
+      <div id="timelineList" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- CITAS / CALENDARIO -->
+  <section id="citas">
+    <h2>Citas y calendario</h2>
+    <p class="section-desc">Reuniones con proveedores y pendientes con fecha. Agrega cada cita a tu Google Calendar con un clic.</p>
+    <div class="card">
+      <div class="form-row">
+        <div class="field"><label>Título</label><input id="apTitle" placeholder="Ej. Degustación con banquete"></div>
+        <div class="field"><label>Fecha</label><input id="apDate" type="date"></div>
+        <div class="field"><label>Hora</label><input id="apTime" type="time"></div>
+        <div class="field"><label>Lugar</label><input id="apPlace" placeholder="Opcional"></div>
+        <div class="field"><button class="btn" onclick="addAppt()">+ Agregar cita</button></div>
+      </div>
+      <div id="apptList" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <!-- NOTAS Y MOODBOARD -->
+  <!-- MUSICA -->
+  <section id="musica">
+    <h2>Música</h2>
+    <p class="section-desc">Organiza las canciones de cada momento clave: entradas, vals, brindis, baile y más.</p>
+    <div class="card">
+      <div class="form-row">
+        <div class="field"><label>Momento</label>
+          <select id="mMoment" onchange="toggleCustomMoment()">
+            <option value="Entrada del novio">Entrada del novio</option>
+            <option value="Entrada de la novia">Entrada de la novia</option>
+            <option value="Entrada de los novios">Entrada de los novios</option>
+            <option value="Vals / Primer baile">Vals / Primer baile</option>
+            <option value="Baile padre-hija">Baile padre-hija</option>
+            <option value="Baile madre-hijo">Baile madre-hijo</option>
+            <option value="Ceremonia">Ceremonia</option>
+            <option value="Brindis">Brindis</option>
+            <option value="Corte de torta">Corte de torta</option>
+            <option value="Lanzamiento del ramo">Lanzamiento del ramo</option>
+            <option value="Fiesta / Baile general">Fiesta / Baile general</option>
+            <option value="Cierre / Última canción">Cierre / Última canción</option>
+            <option value="__custom__">Otro (escribir)…</option>
+          </select>
+        </div>
+        <div class="field" id="mCustomWrap" style="display:none"><label>Momento personalizado</label>
+          <input id="mCustom" placeholder="Ej.: Entrada al salón">
+        </div>
+        <div class="field"><label>Canción</label><input id="mSong" placeholder="Título de la canción"></div>
+        <div class="field"><label>Artista</label><input id="mArtist" placeholder="Intérprete"></div>
+        <div class="field"><label>Notas</label><input id="mNote" placeholder="Ej.: versión acústica, min 1:20…"></div>
+        <div class="field"><button class="btn" onclick="addSong()">+ Agregar</button></div>
+      </div>
+      <p class="section-desc" style="margin:4px 0 8px">Comparte esta lista con tu DJ o banda para que todo salga como lo imaginas.</p>
+      <table>
+        <thead><tr><th>Momento</th><th>Canción</th><th>Artista</th><th>Notas</th><th></th></tr></thead>
+        <tbody id="musicBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- POR COMPRAR -->
+  <section id="compras">
+    <h2>Por comprar</h2>
+    <p class="section-desc">Todo lo que te falta conseguir: vestido, zapatos, cotillón y más. Marca lo que ya compraste.</p>
+    <div class="card">
+      <div class="add-inline">
+        <input id="shName" placeholder="¿Qué falta comprar? (ej. Velo, guantes...)">
+        <input id="shNote" placeholder="Detalle o tienda (opcional)">
+        <button class="btn" onclick="addShopping()">+ Agregar</button>
+      </div>
+      <div id="shopSummary" class="countdown" style="margin:10px 0"></div>
+      <table>
+        <thead><tr><th style="width:40px"></th><th>Artículo</th><th>Detalle</th><th></th></tr></thead>
+        <tbody id="shopBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NOTAS -->
+  <section id="notas">
+    <h2>Notas y moodboard</h2>
+    <p class="section-desc">Anota ideas libres y guarda imágenes de inspiración.</p>
+    <div class="card">
+      <div class="field"><label>Notas</label>
+        <textarea id="notesArea" rows="8" placeholder="Ideas, colores, canciones, pendientes sueltos..." oninput="setNotes()"></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="font-size:16px">Moodboard</h2>
+        <button class="btn sm" onclick="document.getElementById('moodFile').click()">＋ Subir imagen</button>
+      </div>
+      <div id="moodGrid"></div>
+    </div>
+  </section>
+
+  <!-- CONSEJOS -->
+  <section id="consejos">
+    <h2>Consejos para tu boda</h2>
+    <p class="section-desc">Ideas prácticas de organización. Toca cada tema para desplegarlo.</p>
+    <div id="tipsList"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Almacenamiento de archivos (IndexedDB + respaldos) ---------- */
+/* Estrategia robusta: los archivos viven en memoria durante la sesión y,
+   además, se intentan guardar en IndexedDB. Si IndexedDB no está disponible
+   (p. ej. al abrir el archivo con file:// en algunos navegadores), se usa
+   localStorage como respaldo. Así adjuntar imágenes siempre funciona. */
+const DB_NAME="matrimonio_files"; let _db=null; let _idbOK=null;
+const _memFiles=new Map();
+const LS_PREFIX="mf_";
+function openDB(){
+  return new Promise((res,rej)=>{
+    if(_db) return res(_db);
+    try{
+      const r=indexedDB.open(DB_NAME,1);
+      r.onupgradeneeded=()=>r.result.createObjectStore("files");
+      r.onsuccess=()=>{ _db=r.result; res(_db); };
+      r.onerror=()=>rej(r.error);
+      r.onblocked=()=>rej(new Error("blocked"));
+    }catch(e){ rej(e); }
+  });
+}
+async function _idbPut(k,blob){ const db=await openDB(); return new Promise((res,rej)=>{const tx=db.transaction("files","readwrite");tx.objectStore("files").put(blob,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);}); }
+async function _idbGet(k){ const db=await openDB(); return new Promise((res,rej)=>{const tx=db.transaction("files","readonly");const q=tx.objectStore("files").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);}); }
+async function _idbDel(k){ const db=await openDB(); return new Promise((res)=>{const tx=db.transaction("files","readwrite");tx.objectStore("files").delete(k);tx.oncomplete=()=>res();tx.onerror=()=>res();}); }
+
+async function putFile(k,blob){
+  _memFiles.set(k,blob);            // siempre disponible en esta sesión
+  // Guardamos SIEMPRE como texto (data URL). Chrome bloquea guardar Blobs en
+  // IndexedDB cuando la página se abre con file://, pero los textos sí funcionan.
+  let url;
+  try{ url=await blobToDataURL(blob); }
+  catch(e){ throw new Error("no-read"); }
+  try{ await _idbPut(k,url); _idbOK=true; return; }
+  catch(e){ _idbOK=false; }
+  try{ localStorage.setItem(LS_PREFIX+k,url); }
+  catch(e){ throw new Error("no-persist"); }  // el archivo sigue en memoria esta sesión
+}
+async function getFile(k){
+  if(_memFiles.has(k)) return _memFiles.get(k);
+  try{ const v=await _idbGet(k); if(v){ const b=(typeof v==="string")?await dataURLtoBlob(v):v; _memFiles.set(k,b); return b; } }catch(e){}
+  try{ const u=localStorage.getItem(LS_PREFIX+k); if(u){ const b=await dataURLtoBlob(u); _memFiles.set(k,b); return b; } }catch(e){}
+  return null;
+}
+async function removeFile(k){
+  _memFiles.delete(k);
+  try{ await _idbDel(k); }catch(e){}
+  try{ localStorage.removeItem(LS_PREFIX+k); }catch(e){}
+}
+function blobToDataURL(b){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(b);}); }
+async function dataURLtoBlob(u){
+  try{ return await (await fetch(u)).blob(); }
+  catch(e){
+    // Decodificación manual (sin fetch) por si file:// bloquea data: URLs
+    const [head,b64]=u.split(",");
+    const mime=(head.match(/data:([^;]+)/)||[])[1]||"application/octet-stream";
+    const bin=atob(b64); const arr=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    return new Blob([arr],{type:mime});
+  }
+}
+
+/* ---------- Estado y persistencia ---------- */
+const KEY="matrimonio_organizador_v1";
+const DEFAULT_SHOPPING=["Vestido de novia","Velo","Zapatos de novia","Ropa interior","Traje / terno del novio","Zapatos del novio","Anillos","Cotillón","Recuerdos para invitados","Accesorios y joyería","Ramo","Libro de firmas"];
+const DEFAULT_TASKS=[
+  ["Más de 12 meses antes","Definir presupuesto total"],
+  ["Más de 12 meses antes","Elegir fecha tentativa"],
+  ["Más de 12 meses antes","Hacer lista preliminar de invitados"],
+  ["Más de 12 meses antes","Definir estilo y tipo de boda"],
+  ["Más de 12 meses antes","Reservar el lugar de la ceremonia y recepción"],
+  ["12 - 9 meses antes","Contratar fotógrafo y video"],
+  ["12 - 9 meses antes","Contratar banquete / catering"],
+  ["12 - 9 meses antes","Reservar música / DJ o grupo"],
+  ["12 - 9 meses antes","Elegir vestido / traje"],
+  ["12 - 9 meses antes","Enviar 'save the date'"],
+  ["9 - 6 meses antes","Definir menú y hacer degustación"],
+  ["9 - 6 meses antes","Contratar decoración y flores"],
+  ["9 - 6 meses antes","Reservar transporte"],
+  ["9 - 6 meses antes","Planear luna de miel"],
+  ["9 - 6 meses antes","Elegir anillos"],
+  ["6 - 3 meses antes","Enviar invitaciones formales"],
+  ["6 - 3 meses antes","Comprar / encargar pastel"],
+  ["6 - 3 meses antes","Pruebas de vestido / traje"],
+  ["6 - 3 meses antes","Definir lista de canciones"],
+  ["6 - 3 meses antes","Reservar noche de bodas / hospedaje"],
+  ["2 - 1 mes antes","Confirmar asistencia (RSVP)"],
+  ["2 - 1 mes antes","Definir distribución de mesas"],
+  ["2 - 1 mes antes","Últimos pagos a proveedores"],
+  ["2 - 1 mes antes","Prueba de maquillaje y peinado"],
+  ["2 - 1 mes antes","Confirmar detalles con cada proveedor"],
+  ["Última semana","Recoger vestido / traje y anillos"],
+  ["Última semana","Confirmar horarios con todos los proveedores"],
+  ["Última semana","Preparar kit de emergencia"],
+  ["Última semana","Delegar tareas del día a personas de confianza"],
+  ["El día de la boda","¡Disfrutar y relajarse!"]
+];
+const PHASES=["Más de 12 meses antes","12 - 9 meses antes","9 - 6 meses antes","6 - 3 meses antes","2 - 1 mes antes","Última semana","El día de la boda","Personalizadas"];
+
+let data=load();
+
+function migrate(d){
+  if(d.guestGoal==null) d.guestGoal=115;
+  if(!d.tables) d.tables=[];
+  if(!d.timeline) d.timeline=[];
+  if(!d.appointments) d.appointments=[];
+  if(d.notes==null) d.notes="";
+  if(!d.moodboard) d.moodboard=[];
+  if(!d.music) d.music=[];
+  if(!Array.isArray(d.shopping)) d.shopping=DEFAULT_SHOPPING.map(n=>({id:id(),name:n,note:"",done:false}));
+  (d.guests||[]).forEach(g=>{ if(!Array.isArray(g.companionNames)) g.companionNames=[]; });
+  // convierte presupuesto antiguo (est/real/paid) al modelo de abonos
+  (d.budget||[]).forEach(x=>{
+    if(x.abonos) return;
+    const monto=+x.real||+x.est||0;
+    x.total=monto;
+    x.abonos=[];
+    if(x.paid==="si"&&monto>0) x.abonos.push({id:id(),fecha:"",monto,pagado:true});
+    else if(x.paid==="parcial"&&monto>0) x.abonos.push({id:id(),fecha:"",monto:Math.round(monto/2),pagado:true});
+    delete x.est; delete x.real; delete x.paid;
+  });
+  // proveedores: agrega total y abonos
+  (d.vendors||[]).forEach(v=>{
+    if(v.total==null) v.total=+v.cost||0;
+    if(!v.abonos) v.abonos=[];
+  });
+  return d;
+}
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw) return migrate(JSON.parse(raw));
+  }catch(e){}
+  return {
+    weddingDate:"", couple:"", guestGoal:115,
+    guests:[], budget:[], vendors:[],
+    tables:[], timeline:[], appointments:[], notes:"", moodboard:[], music:[],
+    shopping:DEFAULT_SHOPPING.map(n=>({id:id(),name:n,note:"",done:false})),
+    tasks:DEFAULT_TASKS.map((t,i)=>({id:id(),phase:t[0],name:t[1],done:false,date:""}))
+  };
+}
+function save(){ localStorage.setItem(KEY,JSON.stringify(data)); }
+function id(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function money(n){ return "$"+(Number(n)||0).toLocaleString("es-MX"); }
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ---------- Navegación ---------- */
+document.querySelectorAll("#nav button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("#nav button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("main section").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    document.getElementById(b.dataset.tab).classList.add("active");
+  };
+});
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+/* ---------- Fecha y pareja ---------- */
+function setWeddingDate(){ data.weddingDate=document.getElementById("weddingDate").value; save(); renderCountdown(); renderStats(); }
+function setCouple(){ data.couple=document.getElementById("coupleNames").value; save(); renderHeader(); }
+function renderHeader(){
+  document.getElementById("headerSub").textContent = data.couple ? data.couple : "Todo lo que necesitas, en un solo lugar";
+}
+function renderCountdown(){
+  const el=document.getElementById("countdown");
+  const hDays=document.getElementById("heroDays"), hLabel=document.getElementById("heroLabel"), hDate=document.getElementById("heroDate");
+  if(!data.weddingDate){
+    el.innerHTML="Selecciona una fecha para ver la cuenta regresiva.";
+    hDays.textContent="—"; hLabel.textContent="Selecciona la fecha de tu boda"; hDate.textContent="";
+    return;
+  }
+  const d=new Date(data.weddingDate+"T00:00:00");
+  const now=new Date(); now.setHours(0,0,0,0);
+  const days=Math.round((d-now)/86400000);
+  const fmt=d.toLocaleDateString("es-MX",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  if(days>0){
+    el.innerHTML=`Faltan <b>${days}</b> días · ${fmt}`;
+    hDays.textContent=days; hLabel.textContent=days===1?"día para el gran día":"días para el gran día"; hDate.textContent="📅 "+fmt;
+  }else if(days===0){
+    el.innerHTML=`<b>¡Hoy es el gran día!</b> 🎉`;
+    hDays.textContent="🎉"; hLabel.textContent="¡Hoy es el gran día!"; hDate.textContent=fmt;
+  }else{
+    el.innerHTML=`La boda fue el ${fmt}`;
+    hDays.textContent="♥"; hLabel.textContent="¡Felicidades!"; hDate.textContent="La boda fue el "+fmt;
+  }
+}
+
+/* ---------- Stats resumen ---------- */
+function renderStats(){
+  const g=data.guests, conf=guestPersons("confirmado"), pend=guestPersons("pendiente");
+  const goal=+data.guestGoal||0;
+  const totB=data.budget.reduce((s,b)=>s+(+b.total||0),0);
+  const paid=data.budget.reduce((s,b)=>s+abonado(b),0);
+  const falta=totB-paid;
+  const done=data.tasks.filter(t=>t.done).length, tot=data.tasks.length;
+  const pct=tot?Math.round(done/tot*100):0;
+  const hired=data.vendors.filter(v=>v.status==="contratado").length;
+  document.getElementById("statsGrid").innerHTML=`
+    <div class="stat"><div class="label">Invitados confirmados</div><div class="value">${conf}<span style="font-size:16px;color:var(--muted)"> / ${goal}</span></div>
+      <div class="meta">${g.length} en lista · ${pend} pendientes</div></div>
+    <div class="stat"><div class="label">Presupuesto</div><div class="value money">${money(totB)}</div>
+      <div class="meta">Abonado: ${money(paid)} · Falta: ${money(falta>0?falta:0)}</div></div>
+    <div class="stat"><div class="label">Tareas</div><div class="value">${done}/${tot}</div>
+      <div class="meta">${pct}% completado</div><div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="stat"><div class="label">Proveedores</div><div class="value">${hired}/${data.vendors.length}</div>
+      <div class="meta">contratados</div></div>`;
+}
+
+/* ---------- Invitados ---------- */
+function addGuest(){
+  const name=document.getElementById("gName").value.trim();
+  if(!name){ toast("Escribe un nombre"); return; }
+  data.guests.push({id:id(),name,group:document.getElementById("gGroup").value.trim(),
+    rsvp:document.getElementById("gRsvp").value,companions:Math.max(0,+document.getElementById("gComp").value||0),
+    table:document.getElementById("gTable").value.trim(),
+    diet:document.getElementById("gDiet").value.trim(),companionNames:[]});
+  ["gName","gGroup","gComp","gTable","gDiet"].forEach(i=>document.getElementById(i).value="");
+  save(); renderGuests(); renderStats(); toast("Invitado agregado");
+}
+function rsvpPill(v){ return v==="confirmado"?'<span class="pill green">Confirmado</span>':v==="rechazado"?'<span class="pill red">No asiste</span>':'<span class="pill amber">Pendiente</span>'; }
+function renderGuests(){
+  const b=document.getElementById("guestBody");
+  if(!data.guests.length){ b.innerHTML='<tr><td colspan="7" class="empty">Aún no hay invitados. Agrega el primero arriba.</td></tr>'; }
+  else b.innerHTML=data.guests.map((g,i)=>{
+    const names=g.companionNames||[];
+    let row=`<tr>
+    <td><a class="row-toggle" onclick="toggleGuest('${g.id}')">${g.open?'▾':'▸'} ${esc(g.name)}</a></td><td>${esc(g.group)||'—'}</td>
+    <td><select class="inline-edit status-sel" onchange="editGuest('${g.id}','rsvp',this.value)">
+      ${['pendiente','confirmado','rechazado'].map(o=>`<option value="${o}" ${g.rsvp===o?'selected':''}>${o==='pendiente'?'Pendiente':o==='confirmado'?'Confirmado':'No asiste'}</option>`).join('')}
+    </select></td>
+    <td><input type="number" min="0" class="inline-edit" style="width:56px" value="${+g.companions||0}" title="Acompañantes" onchange="editGuestNum('${g.id}','companions',this.value)">${names.length?` <span class="pill blue" style="font-size:10px">${names.length} con nombre</span>`:''}</td>
+    <td>${(g.tableId&&tableName(g.tableId))?esc(tableName(g.tableId)):(esc(g.table)||'—')}</td><td>${esc(g.diet)||'—'}</td>
+    <td class="right" style="white-space:nowrap">
+      <button class="btn sm light" onclick="moveGuest(${i},-1)" ${i===0?'disabled':''} title="Subir">↑</button>
+      <button class="btn sm light" onclick="moveGuest(${i},1)" ${i===data.guests.length-1?'disabled':''} title="Bajar">↓</button>
+      <button class="btn danger" onclick="delGuest('${g.id}')">✕</button></td></tr>`;
+    if(g.open){
+      row+=`<tr class="abono-panel"><td colspan="7"><div class="abono-box">
+        <div class="countdown" style="margin:2px 0 8px">Acompañantes de <b>${esc(g.name)}</b>. La cantidad de arriba es el total; aquí puedes nombrar a los que ya conozcas.</div>`;
+      if(!names.length) row+=`<div class="countdown" style="margin:2px 0 8px">Aún no hay nombres. Agrega uno abajo.</div>`;
+      names.forEach((nm,ci)=>{
+        row+=`<div class="abono-line">
+          <span class="a-date">Acompañante ${ci+1}</span>
+          <input class="inline-edit" style="flex:1;min-width:140px" value="${esc(nm)}" placeholder="Nombre" onchange="editCompanionName('${g.id}',${ci},this.value)">
+          <button class="btn danger" onclick="delCompanionName('${g.id}',${ci})">✕</button></div>`;
+      });
+      row+=`<div class="abono-add">
+        <input id="cn_${g.id}" placeholder="Nombre del acompañante" style="flex:1;min-width:160px">
+        <button class="btn sm" onclick="addCompanionName('${g.id}')">+ Agregar nombre</button>
+      </div></div></td></tr>`;
+    }
+    return row;
+  }).join('');
+  const confP=guestPersons("confirmado");
+  const totP=guestPersons("confirmado")+guestPersons("pendiente");
+  const extra=data.guests.reduce((s,x)=>s+(+x.companions||0),0);
+  document.getElementById("guestSummary").innerHTML=`En la lista: <b>${data.guests.length}</b> invitados${extra?` (<b>${data.guests.length+extra}</b> personas con acompañantes)`:''} · Confirmados: <b>${confP}</b> personas`;
+  renderGuestStats();
+}
+function personsOf(g){ return 1+(+g.companions||0); }
+function guestPersons(rsvp){ return data.guests.filter(x=>x.rsvp===rsvp).reduce((s,x)=>s+personsOf(x),0); }
+function setGuestGoal(v){ data.guestGoal=Math.max(0,+v||0); save(); renderGuestStats(); renderStats(); }
+function renderGuestStats(){
+  const goal=+data.guestGoal||0;
+  const g=data.guests;
+  const conf=guestPersons("confirmado");   // personas confirmadas (incluye acompañantes)
+  const pend=guestPersons("pendiente");     // personas pendientes
+  const no=g.filter(x=>x.rsvp==="rechazado").length;
+  const enLista=conf+pend;                   // personas que asistirían
+  const faltan=goal-conf;
+  const pct=goal?Math.min(100,Math.round(conf/goal*100)):0;
+  document.getElementById("guestStats").innerHTML=`
+    <div class="stat"><div class="label">Meta de invitados</div>
+      <div class="value"><input type="number" value="${goal}" min="0" onchange="setGuestGoal(this.value)"
+        style="width:90px;font-size:24px;font-weight:700;padding:2px 6px;border:1px solid var(--line)"></div>
+      <div class="meta">personas (objetivo total)</div></div>
+    <div class="stat"><div class="label">Confirmados</div><div class="value" style="color:var(--green)">${conf}</div>
+      <div class="meta">${pct}% de la meta · personas</div><div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="stat"><div class="label">Faltan por confirmar</div><div class="value" style="color:var(--accent-dark)">${faltan>0?faltan:0}</div>
+      <div class="meta">${pend} pendientes · ${no} no asisten</div></div>
+    <div class="stat"><div class="label">En la lista</div><div class="value">${enLista}</div>
+      <div class="meta">personas · ${goal-enLista>0?(goal-enLista)+' por completar':'meta alcanzada'}</div></div>`;
+}
+function editGuest(gid,f,v){ const g=data.guests.find(x=>x.id===gid); if(g){g[f]=v;save();renderStats();renderGuests();} }
+function editGuestNum(gid,f,v){ const g=data.guests.find(x=>x.id===gid); if(g){ let n=Math.max(0,+v||0); if(f==='companions'){ const named=(g.companionNames||[]).length; if(n<named){ n=named; toast("Ya hay "+named+" acompañante(s) con nombre"); } } g[f]=n; save();renderStats();renderGuests(); } }
+function delGuest(gid){ data.guests=data.guests.filter(x=>x.id!==gid); save(); renderGuests(); renderStats(); }
+function toggleGuest(gid){ const g=data.guests.find(x=>x.id===gid); if(g){ g.open=!g.open; save(); renderGuests(); } }
+function addCompanionName(gid){
+  const g=data.guests.find(x=>x.id===gid); if(!g) return;
+  const inp=document.getElementById("cn_"+gid); const nm=(inp?inp.value:"").trim();
+  if(!nm){ toast("Escribe un nombre"); return; }
+  g.companionNames=g.companionNames||[]; g.companionNames.push(nm);
+  if((+g.companions||0)<g.companionNames.length) g.companions=g.companionNames.length; // el total nunca es menor que los nombrados
+  save(); renderGuests(); renderStats();
+}
+function editCompanionName(gid,idx,v){ const g=data.guests.find(x=>x.id===gid); if(g&&g.companionNames){ g.companionNames[idx]=v.trim(); save(); } }
+function delCompanionName(gid,idx){ const g=data.guests.find(x=>x.id===gid); if(g&&g.companionNames){ g.companionNames.splice(idx,1); save(); renderGuests(); renderStats(); } }
+function moveGuest(i,dir){ const j=i+dir; if(j<0||j>=data.guests.length) return; const g=data.guests.splice(i,1)[0]; data.guests.splice(j,0,g); save(); renderGuests(); }
+
+/* ---------- Presupuesto (conceptos con abonos) ---------- */
+function abonado(x){ return (x.abonos||[]).filter(a=>a.pagado).reduce((s,a)=>s+(+a.monto||0),0); }
+function programado(x){ return (x.abonos||[]).filter(a=>!a.pagado).reduce((s,a)=>s+(+a.monto||0),0); }
+function addBudget(){
+  const item=document.getElementById("bItem").value.trim();
+  if(!item){ toast("Escribe un concepto"); return; }
+  data.budget.push({id:id(),cat:document.getElementById("bCat").value,item,
+    total:+document.getElementById("bTotal").value||0,abonos:[],open:true});
+  document.getElementById("bItem").value="";document.getElementById("bTotal").value="";
+  save(); renderBudget(); renderStats(); toast("Concepto agregado");
+}
+function mesLabel(fecha){
+  if(!fecha) return "Sin fecha";
+  const d=new Date(fecha+"T00:00:00");
+  return d.toLocaleDateString("es-MX",{month:"long",year:"numeric"}).replace(/^\w/,c=>c.toUpperCase());
+}
+function renderBudget(){
+  const b=document.getElementById("budgetBody");
+  if(!data.budget.length){
+    b.innerHTML='<tr><td colspan="5" class="empty">Sin conceptos aún. Agrega tu primer gasto arriba.</td></tr>';
+    document.getElementById("budgetFoot").innerHTML="";
+  }else{
+    let html="";
+    data.budget.forEach(x=>{
+      const ab=abonado(x), pend=(+x.total||0)-ab;
+      html+=`<tr class="b-row ${x.open?'open':''}" onclick="toggleOpen('${x.id}')">
+        <td>${esc(x.item)}<br><span class="pill gray" style="font-size:11px">${esc(x.cat)}</span></td>
+        <td class="right money"><input type="number" value="${x.total||0}" class="inline-edit money" style="width:110px;text-align:right"
+             onclick="event.stopPropagation()" onchange="editTotal('${x.id}',this.value)"></td>
+        <td class="right money" style="color:var(--green)">${money(ab)}</td>
+        <td class="right money" style="color:${pend>0?'var(--red)':'var(--muted)'}">${money(pend>0?pend:0)}</td>
+        <td class="right"><button class="btn danger" onclick="event.stopPropagation();delBudget('${x.id}')">✕</button></td></tr>`;
+      if(x.open){
+        const abonos=(x.abonos||[]).slice().sort((a,c)=>(a.fecha||"").localeCompare(c.fecha||""));
+        html+=`<tr class="abono-panel"><td colspan="5"><div class="abono-box">`;
+        if(!abonos.length) html+=`<div class="countdown" style="margin:2px 0 8px">Aún no hay abonos registrados. Agrega uno abajo.</div>`;
+        abonos.forEach(a=>{
+          const comps=a.comprobantes||[];
+          html+=`<div class="abono-line ${a.pagado?'paid':''}">
+            <input type="checkbox" ${a.pagado?'checked':''} onchange="toggleAbono('${x.id}','${a.id}')" title="Marcar como pagado">
+            <span class="a-date">${a.fecha?mesLabel(a.fecha):'Sin fecha'}</span>
+            <span class="a-amt money">${money(a.monto)}</span>
+            <span>${a.pagado?'<span class="pill green">Pagado</span>':'<span class="pill amber">Programado</span>'}</span>
+            <span class="a-fill"></span>
+            <button class="btn sm light" onclick="attachComprobante('${x.id}','${a.id}')">📎 ${comps.length?comps.length+' comprob.':'Comprobante'}</button>
+            <button class="btn danger" onclick="delAbono('${x.id}','${a.id}')">✕</button></div>`;
+          if(comps.length){
+            html+=`<div class="comp-list">`;
+            comps.forEach(c=>{
+              const icon=(c.type||'').startsWith('image')?'🖼️':'📄';
+              html+=`<span class="comp-chip">${icon}<a onclick="viewComprobante('${c.id}')" title="Ver comprobante">${esc(c.name)}</a>
+                <button class="btn danger" onclick="delComprobante('${x.id}','${a.id}','${c.id}')" title="Eliminar">✕</button></span>`;
+            });
+            html+=`</div>`;
+          }
+        });
+        html+=`<div class="abono-add">
+          <input type="date" id="ad_${x.id}" title="Fecha del abono">
+          <input type="number" id="am_${x.id}" placeholder="Monto" min="0" style="width:130px">
+          <button class="btn sm" onclick="addAbono('${x.id}')">+ Registrar abono</button>
+          <span class="countdown">Pendiente: <b>${money(pend>0?pend:0)}</b></span>
+        </div></div></td></tr>`;
+      }
+    });
+    b.innerHTML=html;
+    const tot=data.budget.reduce((s,x)=>s+(+x.total||0),0);
+    const ab=data.budget.reduce((s,x)=>s+abonado(x),0);
+    document.getElementById("budgetFoot").innerHTML=`<tr style="font-weight:700">
+      <td>TOTAL</td><td class="right money">${money(tot)}</td>
+      <td class="right money" style="color:var(--green)">${money(ab)}</td>
+      <td class="right money" style="color:var(--red)">${money(tot-ab)}</td><td></td></tr>`;
+  }
+  renderBudgetStats(); renderMonthSummary();
+}
+function renderBudgetStats(){
+  const tot=data.budget.reduce((s,x)=>s+(+x.total||0),0);
+  const ab=data.budget.reduce((s,x)=>s+abonado(x),0);
+  const prog=data.budget.reduce((s,x)=>s+programado(x),0);
+  const pend=tot-ab;
+  const pct=tot?Math.round(ab/tot*100):0;
+  document.getElementById("budgetStats").innerHTML=`
+    <div class="stat"><div class="label">Costo total</div><div class="value money">${money(tot)}</div></div>
+    <div class="stat"><div class="label">Abonado</div><div class="value money" style="color:var(--green)">${money(ab)}</div>
+      <div class="meta">${pct}% pagado</div><div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="stat"><div class="label">Falta por pagar</div><div class="value money" style="color:var(--accent-dark)">${money(pend>0?pend:0)}</div></div>
+    <div class="stat"><div class="label">Programado (sin pagar)</div><div class="value money">${money(prog)}</div>
+      <div class="meta">abonos futuros agendados</div></div>`;
+}
+function renderMonthSummary(){
+  const map={};
+  data.budget.forEach(x=>(x.abonos||[]).forEach(a=>{
+    if(!a.pagado||!a.fecha) return;
+    const k=a.fecha.slice(0,7);
+    map[k]=(map[k]||0)+(+a.monto||0);
+  }));
+  const keys=Object.keys(map).sort();
+  const body=document.getElementById("monthBody");
+  if(!keys.length){ body.innerHTML='<tr><td colspan="3" class="empty">Marca abonos como pagados para ver el resumen mensual.</td></tr>'; return; }
+  let acc=0;
+  body.innerHTML=keys.map(k=>{
+    acc+=map[k];
+    return `<tr><td>${mesLabel(k+"-01")}</td><td class="right money">${money(map[k])}</td><td class="right money">${money(acc)}</td></tr>`;
+  }).join('');
+}
+function toggleOpen(bid){ const x=data.budget.find(i=>i.id===bid); if(x){x.open=!x.open;save();renderBudget();} }
+function editTotal(bid,v){ const x=data.budget.find(i=>i.id===bid); if(x){x.total=+v||0;save();renderBudget();renderStats();} }
+function addAbono(bid){
+  const x=data.budget.find(i=>i.id===bid); if(!x) return;
+  const fecha=document.getElementById("ad_"+bid).value;
+  const monto=+document.getElementById("am_"+bid).value||0;
+  if(!monto){ toast("Escribe un monto"); return; }
+  x.abonos=x.abonos||[]; x.abonos.push({id:id(),fecha,monto,pagado:true});
+  save(); renderBudget(); renderStats(); toast("Abono registrado");
+}
+function toggleAbono(bid,aid){ const x=data.budget.find(i=>i.id===bid); const a=x&&(x.abonos||[]).find(i=>i.id===aid); if(a){a.pagado=!a.pagado;save();renderBudget();renderStats();} }
+function delAbono(bid,aid){ const x=data.budget.find(i=>i.id===bid); if(x){x.abonos=(x.abonos||[]).filter(i=>i.id!==aid);save();renderBudget();renderStats();} }
+function delBudget(bid){ data.budget=data.budget.filter(i=>i.id!==bid); save(); renderBudget(); renderStats(); }
+
+/* ---------- Comprobantes ---------- */
+let _compTarget=null;
+function attachComprobante(bid,aid){ _compTarget={kind:'budget',bid,aid}; document.getElementById("compFile").click(); }
+async function handleComprobante(e){
+  const f=e.target.files[0];
+  if(!f||!_compTarget){ e.target.value=""; return; }
+  const cid=id(); let warn="";
+  try{ await putFile(cid,f); }
+  catch(err){ warn=" (solo en esta sesión: usa ⬇ Exportar para respaldarlo)"; }
+  const list=_compTarget.kind==='vendor'?data.vendors:data.budget;
+  const x=list.find(i=>i.id===_compTarget.bid);
+  const a=x&&(x.abonos||[]).find(i=>i.id===_compTarget.aid);
+  if(a){ a.comprobantes=a.comprobantes||[]; a.comprobantes.push({id:cid,name:f.name,type:f.type||""}); save();
+    if(_compTarget.kind==='vendor') renderVendors(); else renderBudget();
+    renderComprobantes(); toast("Comprobante guardado"+warn); }
+  e.target.value=""; _compTarget=null;
+}
+async function viewComprobante(cid){
+  const blob=await getFile(cid);
+  if(!blob){ toast("Comprobante no encontrado"); return; }
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,"_blank");
+  if(!w){ // popup bloqueado (común en file://): abrir con un enlace temporal
+    const a=document.createElement("a"); a.href=url; a.target="_blank"; a.rel="noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+async function downloadComprobante(cid,name){
+  const blob=await getFile(cid); if(!blob) return;
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name||"comprobante"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),60000);
+}
+async function delComprobante(bid,aid,cid){
+  await removeFile(cid);
+  const x=data.budget.find(i=>i.id===bid); const a=x&&(x.abonos||[]).find(i=>i.id===aid);
+  if(a){ a.comprobantes=(a.comprobantes||[]).filter(c=>c.id!==cid); save(); renderBudget(); renderComprobantes(); toast("Comprobante eliminado"); }
+}
+function allComprobantes(){
+  const out=[];
+  (data.budget||[]).forEach(x=>(x.abonos||[]).forEach(a=>(a.comprobantes||[]).forEach(c=>
+    out.push({...c,concepto:x.item,cat:x.cat,fecha:a.fecha,monto:a.monto}))));
+  (data.vendors||[]).forEach(v=>(v.abonos||[]).forEach(a=>(a.comprobantes||[]).forEach(c=>
+    out.push({...c,concepto:'Proveedor: '+v.name,cat:v.cat,fecha:a.fecha,monto:a.monto}))));
+  return out;
+}
+async function renderComprobantes(){
+  const list=allComprobantes();
+  const sum=document.getElementById("compSummary");
+  const gal=document.getElementById("compGallery");
+  sum.innerHTML=`Tienes <b>${list.length}</b> comprobante${list.length===1?'':'s'} guardado${list.length===1?'':'s'}.
+    Se guardan en este navegador; usa <b>⬇ Exportar</b> para respaldarlos junto con tus datos.`;
+  if(!list.length){ gal.innerHTML='<div class="empty">Aún no hay comprobantes. Ve a Presupuesto, abre un abono y pulsa 📎.</div>'; return; }
+  // agrupar por concepto
+  const groups={};
+  list.forEach(c=>{ (groups[c.concepto]=groups[c.concepto]||[]).push(c); });
+  let html="";
+  for(const g of Object.keys(groups)){
+    html+=`<div class="comp-group-title">${esc(g)}</div><div class="comp-grid">`;
+    groups[g].forEach(c=>{
+      const isImg=(c.type||'').startsWith('image');
+      html+=`<div class="comp-card">
+        <div class="thumb" id="th_${c.id}" onclick="viewComprobante('${c.id}')">${isImg?'':'📄'}</div>
+        <div class="info"><div class="cname">${esc(c.name)}</div>
+          <div class="cmeta">${c.fecha?mesLabel(c.fecha)+' · ':''}${money(c.monto)}</div></div>
+        <div class="actions">
+          <button class="btn sm light" onclick="viewComprobante('${c.id}')">Ver</button>
+          <button class="btn sm light" onclick="downloadComprobante('${c.id}','${esc(c.name)}')">Descargar</button>
+        </div></div>`;
+    });
+    html+=`</div>`;
+  }
+  gal.innerHTML=html;
+  // cargar miniaturas de imágenes
+  for(const c of list){ if((c.type||'').startsWith('image')){ getFile(c.id).then(b=>{ if(b){ const el=document.getElementById("th_"+c.id); if(el) el.innerHTML='<img src="'+URL.createObjectURL(b)+'">'; } }); } }
+}
+
+/* ---------- Tareas ---------- */
+function fillPhaseSelect(){
+  document.getElementById("tPhase").innerHTML=PHASES.map(p=>`<option>${p}</option>`).join('');
+}
+function addTask(){
+  const name=document.getElementById("tNew").value.trim();
+  if(!name){ toast("Escribe una tarea"); return; }
+  data.tasks.push({id:id(),phase:document.getElementById("tPhase").value,name,done:false,date:document.getElementById("tDate").value});
+  document.getElementById("tNew").value="";document.getElementById("tDate").value="";
+  save(); renderTasks(); renderStats(); toast("Tarea agregada");
+}
+function renderTasks(){
+  const cont=document.getElementById("taskList");
+  const order=PHASES;
+  let html="";
+  order.forEach(phase=>{
+    const items=data.tasks.filter(t=>t.phase===phase);
+    if(!items.length) return;
+    const done=items.filter(t=>t.done).length;
+    html+=`<div class="milestone"><span>${phase}</span><span style="font-weight:500;color:var(--muted)">${done}/${items.length}</span></div>`;
+    items.forEach(t=>{
+      html+=`<div class="task ${t.done?'done':''}">
+        <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')">
+        <span class="t-name">${esc(t.name)}</span>
+        ${t.date?`<span class="t-date">📅 ${t.date}</span>`:''}
+        <button class="btn danger" onclick="delTask('${t.id}')">✕</button></div>`;
+    });
+  });
+  cont.innerHTML=html||'<div class="empty">Sin tareas.</div>';
+  const done=data.tasks.filter(t=>t.done).length;
+  document.getElementById("taskSummary").innerHTML=`Progreso: <b>${done}/${data.tasks.length}</b> tareas completadas`;
+}
+function toggleTask(tid){ const t=data.tasks.find(x=>x.id===tid); if(t){t.done=!t.done;save();renderTasks();renderStats();} }
+function delTask(tid){ data.tasks=data.tasks.filter(x=>x.id!==tid); save(); renderTasks(); renderStats(); }
+
+/* ---------- Proveedores ---------- */
+function addVendor(){
+  const name=document.getElementById("pName").value.trim();
+  if(!name){ toast("Escribe un nombre"); return; }
+  data.vendors.push({id:id(),cat:document.getElementById("pCat").value,name,
+    contact:document.getElementById("pContact").value.trim(),cost:+document.getElementById("pCost").value||0,
+    status:document.getElementById("pStatus").value,abonos:[],open:false});
+  document.getElementById("pName").value="";document.getElementById("pContact").value="";document.getElementById("pCost").value="";
+  save(); renderVendors(); renderStats(); toast("Proveedor agregado");
+}
+function vAbonado(v){ return (v.abonos||[]).filter(a=>a.pagado).reduce((s,a)=>s+(+a.monto||0),0); }
+function vendorRowHtml(v){
+  const ab=vAbonado(v), pend=(+v.cost||0)-ab;
+  let html=`<tr>
+      <td>${esc(v.cat)}</td>
+      <td><a class="row-toggle" onclick="toggleVendor('${v.id}')">${v.open?'▾':'▸'} ${esc(v.name)}</a></td>
+      <td>${esc(v.contact)||'—'}</td>
+      <td class="right money">${money(v.cost)}</td>
+      <td><select class="inline-edit status-sel" onchange="editVendor('${v.id}','status',this.value)">
+        ${['buscando','cotizado','contratado'].map(o=>`<option value="${o}" ${v.status===o?'selected':''}>${o==='buscando'?'Buscando':o==='cotizado'?'Cotizado':'Contratado'}</option>`).join('')}
+      </select></td>
+      <td class="right"><button class="btn danger" onclick="delVendor('${v.id}')">✕</button></td></tr>`;
+  if(v.open){
+    const abonos=v.abonos||[];
+    html+=`<tr class="abono-panel"><td colspan="6"><div class="abono-box">`;
+    html+=`<div class="vendor-detail">
+      <label>Qué incluye / detalles del contrato</label>
+      <textarea rows="3" placeholder="Ej.: 8 hrs de cobertura · 2 fotógrafos · álbum 30x30 · 300 fotos editadas · entrega en 45 días..." oninput="editVendorDetails('${v.id}',this.value)">${esc(v.details||'')}</textarea>
+    </div>`;
+    if(!abonos.length) html+=`<div class="countdown" style="margin:2px 0 8px">Aún no hay abonos para este proveedor. Agrega uno abajo.</div>`;
+    abonos.forEach(a=>{
+      const comps=a.comprobantes||[];
+      html+=`<div class="abono-line ${a.pagado?'paid':''}">
+        <input type="checkbox" ${a.pagado?'checked':''} onchange="toggleVAbono('${v.id}','${a.id}')" title="Marcar como pagado">
+        <span class="a-date">${a.fecha?mesLabel(a.fecha):'Sin fecha'}</span>
+        <span class="a-amt money">${money(a.monto)}</span>
+        <span>${a.pagado?'<span class="pill green">Pagado</span>':'<span class="pill amber">Programado</span>'}</span>
+        <span class="a-fill"></span>
+        <button class="btn sm light" onclick="attachVendorComprobante('${v.id}','${a.id}')">📎 ${comps.length?comps.length+' comprob.':'Comprobante'}</button>
+        <button class="btn danger" onclick="delVAbono('${v.id}','${a.id}')">✕</button></div>`;
+      if(comps.length){
+        html+=`<div class="comp-list">`;
+        comps.forEach(c=>{
+          const icon=(c.type||'').startsWith('image')?'🖼️':'📄';
+          html+=`<span class="comp-chip">${icon}<a onclick="viewComprobante('${c.id}')" title="Ver comprobante">${esc(c.name)}</a>
+            <button class="btn danger" onclick="delVComprobante('${v.id}','${a.id}','${c.id}')" title="Eliminar">✕</button></span>`;
+        });
+        html+=`</div>`;
+      }
+    });
+    html+=`<div class="abono-add">
+      <input type="date" id="vad_${v.id}" title="Fecha del abono">
+      <input type="number" id="vam_${v.id}" placeholder="Monto" min="0" style="width:130px">
+      <button class="btn sm" onclick="addVAbono('${v.id}')">+ Registrar abono</button>
+      <span class="countdown">Pendiente: <b>${money(pend>0?pend:0)}</b></span>
+    </div></div></td></tr>`;
+  }
+  return html;
+}
+function renderVendors(){
+  const b=document.getElementById("vendorBody");
+  if(!data.vendors.length){ b.innerHTML='<tr><td colspan="6" class="empty">Sin proveedores aún. Agrega el primero arriba.</td></tr>'; document.getElementById("vendorFoot").innerHTML=""; return; }
+  const enCotizacion=data.vendors.filter(v=>v.status!=='contratado');
+  const contratados=data.vendors.filter(v=>v.status==='contratado');
+  let html="";
+  const groupHead=(txt,n)=>`<tr class="vendor-group"><td colspan="6" style="background:var(--bg);font-weight:700;color:var(--accent-dark);padding:8px 10px">${txt} <span style="color:var(--muted);font-weight:500">(${n})</span></td></tr>`;
+  if(enCotizacion.length){
+    html+=groupHead("En cotización",enCotizacion.length);
+    enCotizacion.forEach(v=>{ html+=vendorRowHtml(v); });
+  }
+  if(contratados.length){
+    html+=groupHead("Contratados",contratados.length);
+    contratados.forEach(v=>{ html+=vendorRowHtml(v); });
+  }
+  b.innerHTML=html;
+  const tot=data.vendors.reduce((s,v)=>s+(+v.cost||0),0);
+  const ab=data.vendors.reduce((s,v)=>s+vAbonado(v),0);
+  document.getElementById("vendorFoot").innerHTML=`<tr style="font-weight:700">
+    <td colspan="3">TOTAL</td><td class="right money">${money(tot)}</td><td colspan="2"></td></tr>`;
+}
+function toggleVendor(vid){ const x=data.vendors.find(i=>i.id===vid); if(x){x.open=!x.open;save();renderVendors();} }
+function editVendor(vid,f,v){ const x=data.vendors.find(i=>i.id===vid); if(x){x[f]=v;save();renderVendors();renderStats();} }
+function editVendorDetails(vid,v){ const x=data.vendors.find(i=>i.id===vid); if(x){ x.details=v; save(); } }
+function delVendor(vid){ data.vendors=data.vendors.filter(i=>i.id!==vid); save(); renderVendors(); renderStats(); }
+function addVAbono(vid){
+  const x=data.vendors.find(i=>i.id===vid); if(!x) return;
+  const fecha=document.getElementById("vad_"+vid).value;
+  const monto=+document.getElementById("vam_"+vid).value||0;
+  if(!monto){ toast("Escribe un monto"); return; }
+  x.abonos=x.abonos||[]; x.abonos.push({id:id(),fecha,monto,pagado:true});
+  save(); renderVendors(); renderStats(); toast("Abono registrado");
+}
+function toggleVAbono(vid,aid){ const x=data.vendors.find(i=>i.id===vid); const a=x&&(x.abonos||[]).find(i=>i.id===aid); if(a){a.pagado=!a.pagado;save();renderVendors();renderStats();} }
+function delVAbono(vid,aid){ const x=data.vendors.find(i=>i.id===vid); if(x){x.abonos=(x.abonos||[]).filter(i=>i.id!==aid);save();renderVendors();renderStats();} }
+function attachVendorComprobante(vid,aid){ _compTarget={kind:'vendor',bid:vid,aid}; document.getElementById("compFile").click(); }
+async function delVComprobante(vid,aid,cid){
+  await removeFile(cid);
+  const x=data.vendors.find(i=>i.id===vid); const a=x&&(x.abonos||[]).find(i=>i.id===aid);
+  if(a){ a.comprobantes=(a.comprobantes||[]).filter(c=>c.id!==cid); save(); renderVendors(); renderComprobantes(); toast("Comprobante eliminado"); }
+}
+
+/* ---------- Mesas (arrastrar y soltar) ---------- */
+function tableName(tid){ const t=(data.tables||[]).find(x=>x.id===tid); return t?t.name:""; }
+function addTable(){
+  const name=document.getElementById("tblName").value.trim();
+  if(!name){ toast("Escribe el nombre de la mesa"); return; }
+  const cap=+document.getElementById("tblCap").value||0;
+  data.tables.push({id:id(),name,cap});
+  document.getElementById("tblName").value="";document.getElementById("tblCap").value="";
+  save(); renderMesas(); toast("Mesa agregada");
+}
+function delTable(tid){
+  data.tables=data.tables.filter(t=>t.id!==tid);
+  data.guests.forEach(g=>{ if(g.tableId===tid) g.tableId=""; });
+  save(); renderMesas(); renderGuests();
+}
+function seatable(){ return data.guests.filter(g=>g.rsvp!=="rechazado"); }
+function guestChip(g){
+  const opts=['<option value="">Sin asignar</option>']
+    .concat(data.tables.map(t=>`<option value="${t.id}" ${g.tableId===t.id?'selected':''}>${esc(t.name)}</option>`)).join('');
+  const comp=+g.companions||0;
+  const names=(g.companionNames||[]).filter(n=>n&&n.trim());
+  const sinNombre=Math.max(0,comp-names.length);
+  let compDetail="";
+  if(names.length||sinNombre){
+    const parts=names.map(n=>esc(n));
+    if(sinNombre) parts.push(sinNombre+' sin nombre');
+    compDetail=`<div class="comp-names" style="font-size:11px;color:var(--muted);margin-top:2px;padding-left:2px">+ ${parts.join(' · ')}</div>`;
+  }
+  return `<div class="guest-chip" draggable="true" ondragstart="dragGuest(event,'${g.id}')">
+    <span class="g-fill">${esc(g.name)}${comp?` <span class="pill blue" style="font-size:10px">+${comp}</span>`:''}${g.rsvp==='pendiente'?' <span class="pill amber" style="font-size:10px">?</span>':''}${compDetail}</span>
+    <select onchange="assignGuest('${g.id}',this.value)" title="Asignar mesa">${opts}</select>
+  </div>`;
+}
+function renderMesas(){
+  const seat=seatable();
+  const unassigned=seat.filter(g=>!g.tableId || !tableName(g.tableId));
+  document.getElementById("poolCount").textContent=unassigned.length;
+  document.getElementById("poolZone").innerHTML=unassigned.length?unassigned.map(guestChip).join('')
+    :'<div class="countdown" style="padding:6px">Todos acomodados 🎉</div>';
+  const grid=document.getElementById("tablesGrid");
+  if(!data.tables.length){ grid.innerHTML='<div class="empty">Crea tu primera mesa arriba.</div>'; }
+  else grid.innerHTML=data.tables.map(t=>{
+    const seated=seat.filter(g=>g.tableId===t.id);
+    const seatedP=seated.reduce((s,g)=>s+personsOf(g),0);
+    const full=t.cap&&seatedP>=t.cap;
+    return `<div class="table-card">
+      <div class="thead"><span class="table-title">${esc(t.name)}</span>
+        <button class="btn danger" onclick="delTable('${t.id}')">✕</button></div>
+      <div class="table-cap ${full?'full':''}">${seatedP}${t.cap?' / '+t.cap:''} personas${full?' · llena':''}</div>
+      <div class="drop-zone" ondragover="allowDrop(event)" ondrop="dropGuest(event,'${t.id}')" style="margin-top:8px">
+        ${seated.length?seated.map(guestChip).join(''):'<div class="countdown" style="padding:6px">Arrastra invitados aquí</div>'}
+      </div></div>`;
+  }).join('');
+  const asignadosP=seat.filter(g=>g.tableId&&tableName(g.tableId)).reduce((s,g)=>s+personsOf(g),0);
+  const porAcomodarP=unassigned.reduce((s,g)=>s+personsOf(g),0);
+  document.getElementById("mesasSummary").innerHTML=`Acomodados: <b>${asignadosP}</b> personas · Por acomodar: <b>${porAcomodarP}</b> · Mesas: <b>${data.tables.length}</b>`;
+}
+let _dragGuest=null;
+function dragGuest(e,gid){ _dragGuest=gid; e.dataTransfer.effectAllowed="move"; e.dataTransfer.setData("text",gid); }
+function allowDrop(e){ e.preventDefault(); e.currentTarget.classList.add("over"); e.dataTransfer.dropEffect="move"; }
+function dropGuest(e,tid){
+  e.preventDefault(); e.currentTarget.classList.remove("over");
+  const gid=_dragGuest||e.dataTransfer.getData("text");
+  assignGuest(gid,tid);
+}
+document.addEventListener("dragleave",e=>{ if(e.target.classList&&e.target.classList.contains("drop-zone")) e.target.classList.remove("over"); });
+function assignGuest(gid,tid){ const g=data.guests.find(x=>x.id===gid); if(g){ g.tableId=tid; save(); renderMesas(); renderGuests(); } }
+
+/* ---------- Cronograma del día ---------- */
+function addTimeline(){
+  const act=document.getElementById("tlAct").value.trim();
+  const time=document.getElementById("tlTime").value;
+  if(!act){ toast("Escribe la actividad"); return; }
+  data.timeline.push({id:id(),time,act});
+  document.getElementById("tlAct").value="";document.getElementById("tlTime").value="";
+  save(); renderTimeline(); toast("Agregado al cronograma");
+}
+function delTimeline(tid){ data.timeline=data.timeline.filter(t=>t.id!==tid); save(); renderTimeline(); }
+function renderTimeline(){
+  const el=document.getElementById("timelineList");
+  const items=data.timeline.slice().sort((a,b)=>(a.time||"99").localeCompare(b.time||"99"));
+  if(!items.length){ el.innerHTML='<div class="empty">Sin actividades aún. Agrega la primera arriba.</div>'; return; }
+  el.innerHTML=items.map(t=>`<div class="tl-item">
+    <span class="tl-time">${t.time||'--:--'}</span><span class="tl-dot"></span>
+    <span class="tl-act">${esc(t.act)}</span>
+    <button class="btn danger" onclick="delTimeline('${t.id}')">✕</button></div>`).join('');
+}
+
+/* ---------- Citas / Calendario ---------- */
+function addAppt(){
+  const title=document.getElementById("apTitle").value.trim();
+  const date=document.getElementById("apDate").value;
+  if(!title){ toast("Escribe el título"); return; }
+  if(!date){ toast("Elige una fecha"); return; }
+  data.appointments.push({id:id(),title,date,time:document.getElementById("apTime").value,place:document.getElementById("apPlace").value.trim()});
+  ["apTitle","apDate","apTime","apPlace"].forEach(i=>document.getElementById(i).value="");
+  save(); renderAppts(); toast("Cita agregada");
+}
+function delAppt(aid){ data.appointments=data.appointments.filter(a=>a.id!==aid); save(); renderAppts(); }
+function gcalLink(a){
+  const start=a.date.replace(/-/g,"")+(a.time?"T"+a.time.replace(":","")+"00":"");
+  let end=start;
+  if(a.time){ let h=(+a.time.slice(0,2)+1)%24; end=a.date.replace(/-/g,"")+"T"+String(h).padStart(2,"0")+a.time.slice(3,5)+"00"; }
+  const dates=a.time?`${start}/${end}`:`${a.date.replace(/-/g,"")}/${a.date.replace(/-/g,"")}`;
+  const p=new URLSearchParams({action:"TEMPLATE",text:a.title,dates,location:a.place||"",details:"Cita de matrimonio"});
+  return "https://www.google.com/calendar/render?"+p.toString();
+}
+function renderAppts(){
+  const el=document.getElementById("apptList");
+  const items=data.appointments.slice().sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||"")));
+  if(!items.length){ el.innerHTML='<div class="empty">Sin citas aún. Agenda la primera arriba.</div>'; return; }
+  const today=new Date().toISOString().slice(0,10);
+  el.innerHTML=items.map(a=>{
+    const d=new Date(a.date+"T00:00:00");
+    const past=a.date<today;
+    return `<div class="ap-item ${past?'ap-past':''}">
+      <div class="ap-when"><div class="d">${d.getDate()}</div><div class="m">${d.toLocaleDateString("es-MX",{month:"short"})}</div></div>
+      <div class="ap-body"><div class="t">${esc(a.title)}</div>
+        <div class="s">${d.toLocaleDateString("es-MX",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}${a.time?' · '+a.time:''}${a.place?' · '+esc(a.place):''}</div></div>
+      <a class="btn sm light" href="${gcalLink(a)}" target="_blank" rel="noopener">📅 Google Calendar</a>
+      <button class="btn danger" onclick="delAppt('${a.id}')">✕</button></div>`;
+  }).join('');
+}
+
+/* ---------- Notas y Moodboard ---------- */
+function setNotes(){ data.notes=document.getElementById("notesArea").value; save(); }
+async function handleMood(e){
+  const f=e.target.files[0]; if(!f){ return; }
+  const cid=id(); let warn="";
+  try{ await putFile(cid,f); }
+  catch(err){ warn=" (solo en esta sesión: usa ⬇ Exportar para respaldarla)"; }
+  data.moodboard.push({id:cid,name:f.name,type:f.type||""}); save(); renderMood(); toast("Imagen agregada"+warn);
+  e.target.value="";
+}
+async function delMood(cid){ await removeFile(cid); data.moodboard=data.moodboard.filter(m=>m.id!==cid); save(); renderMood(); }
+function renderMood(){
+  const el=document.getElementById("moodGrid");
+  if(!data.moodboard.length){ el.innerHTML='<div class="empty">Sube imágenes de inspiración con el botón de arriba.</div>'; return; }
+  el.innerHTML='<div class="mood-grid">'+data.moodboard.map(m=>`<div class="mood-card">
+    <button class="del" onclick="delMood('${m.id}')">✕</button>
+    <div id="mo_${m.id}" class="doc" onclick="viewComprobante('${m.id}')">${(m.type||'').startsWith('image')?'':'📄'}</div>
+    </div>`).join('')+'</div>';
+  data.moodboard.forEach(m=>{ if((m.type||'').startsWith('image')){ getFile(m.id).then(b=>{ if(b){ const el2=document.getElementById("mo_"+m.id); if(el2){ el2.outerHTML='<img src="'+URL.createObjectURL(b)+'" onclick="viewComprobante(\''+m.id+'\')">'; } } }); } });
+}
+
+/* ---------- Consejos ---------- */
+const TIPS=[
+  ["Presupuesto",["Define un monto máximo antes de cotizar y deja ~10% de colchón para imprevistos.","El banquete suele ser el mayor gasto (40-50%); cotiza al menos 3 opciones.","Prioriza lo que más recordarán tus invitados: comida, música y fotos.","Lleva un registro de abonos y comprobantes para no perder el control (ya lo tienes aquí)."]],
+  ["Invitados y confirmaciones",["Cierra la lista con tu pareja y familias antes de reservar el lugar.","Pide confirmación con fecha límite (2-3 semanas antes) y haz seguimiento.","Anota restricciones alimentarias al momento de confirmar.","Considera un 10-15% de ausencias sobre los confirmados."]],
+  ["Proveedores",["Firma contrato con todo por escrito: fecha, hora, incluido y forma de pago.","Guarda cada comprobante de abono; sirve como respaldo ante cualquier duda.","Confirma detalles y horarios con cada proveedor la semana previa.","Ten datos de contacto de todos a mano el día de la boda."]],
+  ["Distribución de mesas",["Arma las mesas solo con los confirmados para no rehacer todo.","Ubica a los adultos mayores lejos de los parlantes.","Mezcla grupos con cuidado: cerca de gente que se lleve bien.","Deja una mesa flexible para ajustes de último minuto."]],
+  ["Cronograma del día",["Empieza a maquillarte/vestirte con más tiempo del que crees.","Deja aire entre ceremonia y fiesta para fotos y traslados.","Asigna a alguien de confianza para coordinar horarios ese día.","Ten un kit de emergencia: costurero, pastillas, curitas, toallitas."]],
+  ["Fotografía y recuerdos",["Haz una lista de fotos imprescindibles (familias, grupos) y compártela con el fotógrafo.","Considera una sesión previa para soltarte frente a la cámara.","Define quién recoge regalos y pertenencias al final de la noche."]],
+  ["Bienestar de la pareja",["Reserva momentos para comer y respirar durante el día.","Delega: no intentes resolver todo tú mismo ese día.","Recuerda el motivo de todo: disfrutar y celebrar en pareja."]]
+];
+function renderTips(){
+  document.getElementById("tipsList").innerHTML=TIPS.map(([t,items])=>`<details class="tip">
+    <summary>${t}</summary>
+    <div class="tip-body"><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul></div></details>`).join('');
+}
+
+/* ---------- Exportar / Importar (incluye comprobantes) ---------- */
+async function exportData(){
+  toast("Preparando respaldo...");
+  const payload=JSON.parse(JSON.stringify(data));
+  const files={};
+  const comps=allComprobantes();
+  const ids=new Set(comps.map(c=>c.id));
+  (data.moodboard||[]).forEach(m=>ids.add(m.id));
+  for(const fid of ids){
+    try{ const b=await getFile(fid); if(b) files[fid]=await blobToDataURL(b); }catch(e){}
+  }
+  payload.__files=files;
+  const blob=new Blob([JSON.stringify(payload)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="matrimonio-respaldo-"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+  toast("Respaldo descargado ("+comps.length+" comprobantes)");
+}
+async function importData(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=async()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d.tasks||!d.guests) throw 0;
+      if(d.__files){
+        for(const k in d.__files){ try{ await putFile(k,await dataURLtoBlob(d.__files[k])); }catch(e){} }
+        delete d.__files;
+      }
+      data=migrate(d); save(); renderAll(); toast("Datos importados");
+    }catch(err){ toast("Archivo no válido"); }
+  };
+  r.readAsText(f); e.target.value="";
+}
+
+/* ---------- Init ---------- */
+/* ---------- Música ---------- */
+function toggleCustomMoment(){
+  const custom=document.getElementById("mMoment").value==="__custom__";
+  document.getElementById("mCustomWrap").style.display=custom?"":"none";
+}
+function addSong(){
+  let momento=document.getElementById("mMoment").value;
+  if(momento==="__custom__") momento=document.getElementById("mCustom").value.trim();
+  const cancion=document.getElementById("mSong").value.trim();
+  if(!momento){ toast("Indica el momento"); return; }
+  if(!cancion){ toast("Escribe la canción"); return; }
+  data.music.push({
+    id:id(), momento, cancion,
+    artista:document.getElementById("mArtist").value.trim(),
+    nota:document.getElementById("mNote").value.trim()
+  });
+  document.getElementById("mSong").value="";
+  document.getElementById("mArtist").value="";
+  document.getElementById("mNote").value="";
+  document.getElementById("mCustom").value="";
+  save(); renderMusic(); toast("Canción agregada");
+}
+function editSong(mid,f,v){ const x=data.music.find(i=>i.id===mid); if(x){ x[f]=v; save(); } }
+function delSong(mid){ data.music=data.music.filter(i=>i.id!==mid); save(); renderMusic(); }
+function renderMusic(){
+  const b=document.getElementById("musicBody");
+  if(!data.music.length){ b.innerHTML='<tr><td colspan="5" class="empty">Sin canciones aún. Agrega la primera arriba.</td></tr>'; return; }
+  b.innerHTML=data.music.map(m=>`<tr>
+    <td>${esc(m.momento)}</td>
+    <td><input class="inline-edit" value="${esc(m.cancion)}" onchange="editSong('${m.id}','cancion',this.value)"></td>
+    <td><input class="inline-edit" value="${esc(m.artista)}" placeholder="—" onchange="editSong('${m.id}','artista',this.value)"></td>
+    <td><input class="inline-edit" value="${esc(m.nota)}" placeholder="—" onchange="editSong('${m.id}','nota',this.value)"></td>
+    <td class="right"><button class="btn danger" onclick="delSong('${m.id}')">✕</button></td></tr>`).join("");
+}
+
+/* ---------- Por comprar ---------- */
+function addShopping(){
+  const name=document.getElementById("shName").value.trim();
+  if(!name){ toast("Escribe qué falta comprar"); return; }
+  data.shopping.push({id:id(),name,note:document.getElementById("shNote").value.trim(),done:false});
+  document.getElementById("shName").value=""; document.getElementById("shNote").value="";
+  save(); renderShopping(); toast("Agregado a la lista");
+}
+function toggleShopping(sid){ const x=data.shopping.find(i=>i.id===sid); if(x){ x.done=!x.done; save(); renderShopping(); } }
+function editShopping(sid,f,v){ const x=data.shopping.find(i=>i.id===sid); if(x){ x[f]=v.trim(); save(); } }
+function delShopping(sid){ data.shopping=data.shopping.filter(i=>i.id!==sid); save(); renderShopping(); }
+function renderShopping(){
+  const b=document.getElementById("shopBody");
+  if(!data.shopping.length){ b.innerHTML='<tr><td colspan="4" class="empty">Lista vacía. Agrega lo que falta comprar.</td></tr>'; document.getElementById("shopSummary").innerHTML=""; return; }
+  b.innerHTML=data.shopping.map(s=>`<tr${s.done?' style="opacity:.55"':''}>
+    <td class="right"><input type="checkbox" ${s.done?'checked':''} onchange="toggleShopping('${s.id}')" title="Marcar como comprado"></td>
+    <td><input class="inline-edit" style="width:100%;${s.done?'text-decoration:line-through':''}" value="${esc(s.name)}" onchange="editShopping('${s.id}','name',this.value)"></td>
+    <td><input class="inline-edit" style="width:100%" value="${esc(s.note)}" placeholder="—" onchange="editShopping('${s.id}','note',this.value)"></td>
+    <td class="right"><button class="btn danger" onclick="delShopping('${s.id}')">✕</button></td></tr>`).join("");
+  const comprados=data.shopping.filter(s=>s.done).length, total=data.shopping.length;
+  document.getElementById("shopSummary").innerHTML=`Comprado: <b>${comprados}/${total}</b> · Falta: <b>${total-comprados}</b>`;
+}
+
+function renderAll(){
+  document.getElementById("weddingDate").value=data.weddingDate||"";
+  document.getElementById("coupleNames").value=data.couple||"";
+  renderHeader(); renderCountdown(); renderStats();
+  renderGuests(); renderBudget(); fillPhaseSelect(); renderTasks(); renderVendors(); renderComprobantes();
+  document.getElementById("notesArea").value=data.notes||"";
+  renderMesas(); renderTimeline(); renderAppts(); renderMood(); renderTips(); renderMusic(); renderShopping();
+}
+renderAll();
+</script>
+</body>
+</html>
