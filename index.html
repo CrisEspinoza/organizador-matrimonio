@@ -185,10 +185,24 @@
     .mesas-wrap{grid-template-columns:1fr}
     .pool{position:static}
   }
+  @media(max-width:720px){
+    /* Tablas: mostrar TODAS las columnas y permitir desplazarlas de lado
+       dentro de su tarjeta (en vez de ocultarlas o desbordar la pantalla) */
+    .card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    table{min-width:100%;width:auto}
+    th,td{white-space:nowrap}
+    .abono-panel td,.abono-panel td *{white-space:normal}
+  }
   @media(max-width:640px){
-    header{padding:18px 18px}
-    main{padding:18px 14px 50px}
-    th:nth-child(n+4),td:nth-child(n+4){display:none}
+    html,body{max-width:100%;overflow-x:hidden}
+    header{flex-direction:column;align-items:stretch;gap:10px;padding:16px 16px}
+    header h1{font-size:19px}
+    .top-actions{justify-content:flex-start}
+    .top-actions .btn{padding:7px 10px;font-size:12px}
+    main{padding:16px 12px 46px}
+    /* Campos a 16px: evita el zoom automático del iPhone al tocarlos */
+    input,select,textarea{font-size:16px}
+    .form-row{grid-template-columns:1fr 1fr}
     .hide-mobile{display:none}
   }
   /* ---------- Pantalla de acceso (login) ---------- */
