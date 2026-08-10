@@ -698,9 +698,10 @@
     <div class="sub" id="headerSub">Todo lo que necesitas, en un solo lugar</div>
   </div>
   <div class="top-actions">
-    <button class="btn ghost" onclick="exportData()">⬇ Exportar</button>
-    <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆ Importar</button>
+    <button class="btn ghost" onclick="exportData()">⬇ Respaldo</button>
+    <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆ Restaurar</button>
     <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+    <button class="btn ghost" onclick="logout()">🔒 Cerrar sesión</button>
   </div>
 </header>
 
@@ -1931,7 +1932,7 @@ renderAll();
    No necesitas editar nada aquí; la configuración va en el
    bloque "firebaseConfig" de más arriba.
    ============================================================ */
-let db=null, docRef=null, cloudReady=false, pushT=null;
+let db=null, docRef=null, cloudReady=false, pushT=null, unsubSnap=null;
 
 function showLoginErr(msg){
   const el=document.getElementById("loginErr");
@@ -1953,7 +1954,8 @@ function startCloudSync(){
   db=firebase.firestore();
   docRef=db.collection("matrimonio").doc("datos");
   cloudReady=true;
-  docRef.onSnapshot(snap=>{
+  if(unsubSnap) unsubSnap();
+  unsubSnap=docRef.onSnapshot(snap=>{
     if(snap.metadata.hasPendingWrites) return;      // ignora el eco de nuestros propios cambios
     if(!snap.exists){                               // primera vez: sube lo que hay localmente
       docRef.set({ payload: JSON.stringify(data), updatedAt: Date.now() });
@@ -1990,8 +1992,14 @@ function tryLogin(ev){
     .finally(()=>{ document.getElementById("loginBtn").textContent="Entrar"; });
 }
 
-/* Cerrar sesión (opcional): llama a logout() desde la consola si lo necesitas */
-function logout(){ if(typeof firebase!=="undefined"&&firebase.auth) firebase.auth().signOut(); }
+/* Cerrar sesión */
+function logout(){
+  if(typeof firebase==="undefined" || !firebase.auth) return;
+  if(!confirm("¿Cerrar sesión?")) return;
+  if(unsubSnap){ unsubSnap(); unsubSnap=null; }
+  cloudReady=false; docRef=null; clearTimeout(pushT);
+  firebase.auth().signOut();
+}
 
 /* Arranque de Firebase */
 (function initFirebase(){
