@@ -1999,7 +1999,6 @@ function tryLogin(ev){
       if(["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(err.code)) msg="Correo o contraseña incorrectos.";
       else if(err.code==="auth/invalid-email") msg="El correo no es válido.";
       else if(err.code==="auth/too-many-requests") msg="Demasiados intentos. Espera un momento.";
-      else if(err.code==="auth/network-request-failed") msg="Sin conexión a internet.";
       showLoginErr(msg);
       document.getElementById("loginPass").value="";
     })
