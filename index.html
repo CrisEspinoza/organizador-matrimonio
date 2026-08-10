@@ -191,9 +191,507 @@
     th:nth-child(n+4),td:nth-child(n+4){display:none}
     .hide-mobile{display:none}
   }
+  /* ---------- Pantalla de acceso (login) ---------- */
+  #loginGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+    padding:20px;background:linear-gradient(135deg,#c98b8b,#a86868)}
+  #loginGate .login-box{background:var(--card);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+    padding:32px 26px;max-width:340px;width:100%;text-align:center}
+  #loginGate .login-emoji{font-size:40px;margin-bottom:6px}
+  #loginGate h2{font-size:22px;font-weight:600;margin-bottom:6px}
+  #loginGate p{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+  #loginGate input{width:100%;font-size:15px;padding:11px 12px;margin-bottom:12px;text-align:center;
+    border:1px solid var(--line);border-radius:10px}
+  #loginGate input:focus{outline:none;border-color:var(--accent)}
+  #loginGate .login-err{display:none;color:var(--red);font-size:13px;margin-top:12px}
 </style>
 </head>
 <body>
+
+<!-- ============================================================
+     DATOS INICIALES EMBEBIDOS
+     Se cargan solos la PRIMERA vez que se abre la página (cuando
+     el navegador aún no tiene datos guardados). Después, tus
+     cambios quedan guardados en el navegador. Para reemplazar
+     estos datos por una versión nueva, usa el botón "⬆ Importar"
+     o reemplaza el contenido de este bloque.
+     ============================================================ -->
+<script type="application/json" id="seedData">
+{
+  "weddingDate": "",
+  "couple": "Keyla & Cristian",
+  "guests": [],
+  "budget": [
+    {
+      "id": "5ecd057f50xhm",
+      "cat": "Lugar / Banquete",
+      "item": "Arriendo del lugar",
+      "total": 11017000,
+      "abonos": [
+        {
+          "id": "5ecd057f31dqn",
+          "fecha": "2026-04-01",
+          "monto": 3480100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f32fyk",
+          "fecha": "2026-05-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f33epn",
+          "fecha": "2026-06-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f34bvc",
+          "fecha": "2026-07-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f35yrs",
+          "fecha": "2026-08-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f36zkk",
+          "fecha": "2026-09-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f37wlt",
+          "fecha": "2026-10-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f38psz",
+          "fecha": "2026-11-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f39occ",
+          "fecha": "2026-12-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f40ipw",
+          "fecha": "2027-01-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f41vcb",
+          "fecha": "2027-02-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f42xwj",
+          "fecha": "2027-03-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f43usv",
+          "fecha": "2027-04-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f44ojw",
+          "fecha": "2027-05-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f45mvl",
+          "fecha": "2027-06-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f46aol",
+          "fecha": "2027-07-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f47ftd",
+          "fecha": "2027-08-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f48pbg",
+          "fecha": "2027-09-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f49yje",
+          "fecha": "2027-10-01",
+          "monto": 308500,
+          "pagado": false
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f52fom",
+      "cat": "Música",
+      "item": "Música ceremonia",
+      "total": 180000,
+      "abonos": [
+        {
+          "id": "5ecd057f51mpc",
+          "fecha": "2026-06-01",
+          "monto": 100000,
+          "pagado": true
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f53rie",
+      "cat": "Flores / Decoración",
+      "item": "Decoración ceremonia",
+      "total": 300000,
+      "abonos": [],
+      "open": false
+    },
+    {
+      "id": "5ecd057f60sfi",
+      "cat": "Fotografía / Video",
+      "item": "Equipo fotográfico",
+      "total": 1890000,
+      "abonos": [
+        {
+          "id": "5ecd057f54nri",
+          "fecha": "2026-07-01",
+          "monto": 157500,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f55wnl",
+          "fecha": "2026-08-01",
+          "monto": 157500,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f56vmh",
+          "fecha": "2026-09-01",
+          "monto": 157500,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f57ecf",
+          "fecha": "2026-10-01",
+          "monto": 157500,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f58ehv",
+          "fecha": "2026-11-01",
+          "monto": 157500,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f59hap",
+          "fecha": "2026-12-01",
+          "monto": 157500,
+          "pagado": false
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f63tsk",
+      "cat": "Música",
+      "item": "Daap Producciones",
+      "total": 1700000,
+      "abonos": [
+        {
+          "id": "5ecd057f61jae",
+          "fecha": "2026-05-01",
+          "monto": 100000,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f62nrl",
+          "fecha": "2026-06-01",
+          "monto": 325000,
+          "pagado": true
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f67yvz",
+      "cat": "Otros",
+      "item": "Mimi",
+      "total": 630000,
+      "abonos": [
+        {
+          "id": "5ecd057f64ewq",
+          "fecha": "2026-05-01",
+          "monto": 63000,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f65tuv",
+          "fecha": "2026-06-01",
+          "monto": 63000,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f66xbo",
+          "fecha": "2026-07-01",
+          "monto": 63000,
+          "pagado": true
+        }
+      ],
+      "open": false
+    }
+  ],
+  "vendors": [],
+  "tasks": [
+    {
+      "id": "5ecd03a81kem",
+      "phase": "Más de 12 meses antes",
+      "name": "Definir presupuesto total",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a82ubc",
+      "phase": "Más de 12 meses antes",
+      "name": "Elegir fecha tentativa",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a83rdl",
+      "phase": "Más de 12 meses antes",
+      "name": "Hacer lista preliminar de invitados",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a84sbq",
+      "phase": "Más de 12 meses antes",
+      "name": "Definir estilo y tipo de boda",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a85gbc",
+      "phase": "Más de 12 meses antes",
+      "name": "Reservar el lugar de la ceremonia y recepción",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a86nnc",
+      "phase": "12 - 9 meses antes",
+      "name": "Contratar fotógrafo y video",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a87hcr",
+      "phase": "12 - 9 meses antes",
+      "name": "Contratar banquete / catering",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a88nbs",
+      "phase": "12 - 9 meses antes",
+      "name": "Reservar música / DJ o grupo",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a89dhu",
+      "phase": "12 - 9 meses antes",
+      "name": "Elegir vestido / traje",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a810usb",
+      "phase": "12 - 9 meses antes",
+      "name": "Enviar 'save the date'",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a811ssm",
+      "phase": "9 - 6 meses antes",
+      "name": "Definir menú y hacer degustación",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a812bhb",
+      "phase": "9 - 6 meses antes",
+      "name": "Contratar decoración y flores",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a813rej",
+      "phase": "9 - 6 meses antes",
+      "name": "Reservar transporte",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a814ner",
+      "phase": "9 - 6 meses antes",
+      "name": "Planear luna de miel",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a815dsj",
+      "phase": "9 - 6 meses antes",
+      "name": "Elegir anillos",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a816rvf",
+      "phase": "6 - 3 meses antes",
+      "name": "Enviar invitaciones formales",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a817dss",
+      "phase": "6 - 3 meses antes",
+      "name": "Comprar / encargar pastel",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a818ugl",
+      "phase": "6 - 3 meses antes",
+      "name": "Pruebas de vestido / traje",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a819drw",
+      "phase": "6 - 3 meses antes",
+      "name": "Definir lista de canciones",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a820csb",
+      "phase": "6 - 3 meses antes",
+      "name": "Reservar noche de bodas / hospedaje",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a821tgp",
+      "phase": "2 - 1 mes antes",
+      "name": "Confirmar asistencia (RSVP)",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a822vrn",
+      "phase": "2 - 1 mes antes",
+      "name": "Definir distribución de mesas",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a823yko",
+      "phase": "2 - 1 mes antes",
+      "name": "Últimos pagos a proveedores",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a824sol",
+      "phase": "2 - 1 mes antes",
+      "name": "Prueba de maquillaje y peinado",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a825jhz",
+      "phase": "2 - 1 mes antes",
+      "name": "Confirmar detalles con cada proveedor",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a826fwy",
+      "phase": "Última semana",
+      "name": "Recoger vestido / traje y anillos",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a827hcs",
+      "phase": "Última semana",
+      "name": "Confirmar horarios con todos los proveedores",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a828jqp",
+      "phase": "Última semana",
+      "name": "Preparar kit de emergencia",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a829kxo",
+      "phase": "Última semana",
+      "name": "Delegar tareas del día a personas de confianza",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a830jtc",
+      "phase": "El día de la boda",
+      "name": "¡Disfrutar y relajarse!",
+      "done": false,
+      "date": ""
+    }
+  ]
+}
+</script>
+
+<!-- ============================================================
+     PANTALLA DE ACCESO (LOGIN)
+     ============================================================ -->
+<div id="loginGate">
+  <form class="login-box" onsubmit="tryLogin(event)">
+    <div class="login-emoji">💍</div>
+    <h2 id="loginTitle">Keyla &amp; Cristian</h2>
+    <p>Inicia sesión para ver el organizador.</p>
+    <input type="email" id="loginEmail" placeholder="Correo" autocomplete="username" autofocus>
+    <input type="password" id="loginPass" placeholder="Contraseña" autocomplete="current-password">
+    <button type="submit" id="loginBtn" class="btn" style="width:100%;padding:11px;font-size:14px">Entrar</button>
+    <div id="loginErr" class="login-err"></div>
+  </form>
+</div>
+
 <header>
   <div>
     <h1>💍 Organizador de Matrimonio</h1>
@@ -494,6 +992,29 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ============================================================
+     FIREBASE  (sincronización en la nube + login real)
+     ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============================================================
+   👉 PEGA AQUÍ LA CONFIGURACIÓN DE TU PROYECTO FIREBASE
+   (la copias desde la consola de Firebase — ver la GUÍA que te dejé).
+   Reemplaza TODO el objeto de abajo por el tuyo.
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBKMR9Wawg4S6bk8_f4HbMo6pBj842KfN0",
+  authDomain: "matrimonio-keyla-cristian.firebaseapp.com",
+  projectId: "matrimonio-keyla-cristian",
+  storageBucket: "matrimonio-keyla-cristian.firebasestorage.app",
+  messagingSenderId: "113932566529",
+  appId: "1:113932566529:web:1f8797fdbc5bb94b130000",
+  measurementId: "G-2KC9DCWZ5S"
+};
+</script>
+
 <script>
 /* ---------- Almacenamiento de archivos (IndexedDB + respaldos) ---------- */
 /* Estrategia robusta: los archivos viven en memoria durante la sesión y,
@@ -626,6 +1147,15 @@ function load(){
     const raw=localStorage.getItem(KEY);
     if(raw) return migrate(JSON.parse(raw));
   }catch(e){}
+  // Sin datos guardados aún: cargar los datos iniciales embebidos (bloque #seedData)
+  try{
+    const seedEl=document.getElementById("seedData");
+    if(seedEl && seedEl.textContent.trim()){
+      const seed=migrate(JSON.parse(seedEl.textContent));
+      localStorage.setItem(KEY,JSON.stringify(seed));
+      return seed;
+    }
+  }catch(e){}
   return {
     weddingDate:"", couple:"", guestGoal:115,
     guests:[], budget:[], vendors:[],
@@ -634,7 +1164,7 @@ function load(){
     tasks:DEFAULT_TASKS.map((t,i)=>({id:id(),phase:t[0],name:t[1],done:false,date:""}))
   };
 }
-function save(){ localStorage.setItem(KEY,JSON.stringify(data)); }
+function save(){ localStorage.setItem(KEY,JSON.stringify(data)); pushToCloud(); }
 function id(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function money(n){ return "$"+(Number(n)||0).toLocaleString("es-MX"); }
 function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -1395,6 +1925,95 @@ function renderAll(){
   renderMesas(); renderTimeline(); renderAppts(); renderMood(); renderTips(); renderMusic(); renderShopping();
 }
 renderAll();
+
+/* ============================================================
+   LOGIN + SINCRONIZACIÓN EN LA NUBE (Firebase)
+   No necesitas editar nada aquí; la configuración va en el
+   bloque "firebaseConfig" de más arriba.
+   ============================================================ */
+let db=null, docRef=null, cloudReady=false, pushT=null;
+
+function showLoginErr(msg){
+  const el=document.getElementById("loginErr");
+  el.textContent=msg; el.style.display="block";
+}
+
+/* Envía los datos a la nube (con un pequeño retardo para no saturar) */
+function pushToCloud(){
+  if(!cloudReady || !docRef) return;
+  clearTimeout(pushT);
+  pushT=setTimeout(()=>{
+    docRef.set({ payload: JSON.stringify(data), updatedAt: Date.now() })
+      .catch(err=>console.warn("No se pudo guardar en la nube:", err));
+  }, 800);
+}
+
+/* Escucha cambios desde cualquier dispositivo y los aplica en vivo */
+function startCloudSync(){
+  db=firebase.firestore();
+  docRef=db.collection("matrimonio").doc("datos");
+  cloudReady=true;
+  docRef.onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites) return;      // ignora el eco de nuestros propios cambios
+    if(!snap.exists){                               // primera vez: sube lo que hay localmente
+      docRef.set({ payload: JSON.stringify(data), updatedAt: Date.now() });
+      return;
+    }
+    try{
+      const remote=JSON.parse(snap.data().payload);
+      data=migrate(remote);
+      localStorage.setItem(KEY, JSON.stringify(data));
+      renderAll();
+    }catch(e){ console.warn("Dato remoto inválido:", e); }
+  }, err=>{
+    console.warn("Error de sincronización:", err);
+    toast("Sin conexión con la nube (usando copia local)");
+  });
+}
+
+function tryLogin(ev){
+  if(ev) ev.preventDefault();
+  const email=(document.getElementById("loginEmail").value||"").trim();
+  const pass=document.getElementById("loginPass").value;
+  if(!email||!pass){ showLoginErr("Ingresa correo y contraseña."); return; }
+  document.getElementById("loginBtn").textContent="Entrando…";
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .catch(err=>{
+      let msg="No se pudo iniciar sesión.";
+      if(["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(err.code)) msg="Correo o contraseña incorrectos.";
+      else if(err.code==="auth/invalid-email") msg="El correo no es válido.";
+      else if(err.code==="auth/too-many-requests") msg="Demasiados intentos. Espera un momento.";
+      else if(err.code==="auth/network-request-failed") msg="Sin conexión a internet.";
+      showLoginErr(msg);
+      document.getElementById("loginPass").value="";
+    })
+    .finally(()=>{ document.getElementById("loginBtn").textContent="Entrar"; });
+}
+
+/* Cerrar sesión (opcional): llama a logout() desde la consola si lo necesitas */
+function logout(){ if(typeof firebase!=="undefined"&&firebase.auth) firebase.auth().signOut(); }
+
+/* Arranque de Firebase */
+(function initFirebase(){
+  if(typeof firebase==="undefined" || !firebaseConfig || firebaseConfig.apiKey==="PEGA_AQUI_TU_API_KEY"){
+    showLoginErr("⚙ Falta configurar Firebase. Revisa la guía (GUIA-FIREBASE.md).");
+    return;
+  }
+  try{
+    firebase.initializeApp(firebaseConfig);
+    firebase.auth().onAuthStateChanged(user=>{
+      const gate=document.getElementById("loginGate");
+      if(user){
+        gate.style.display="none";
+        if(!cloudReady) startCloudSync();
+      }else{
+        gate.style.display="flex";
+      }
+    });
+  }catch(e){
+    showLoginErr("Error iniciando Firebase: "+e.message);
+  }
+})();
 </script>
 </body>
 </html>

@@ -1,0 +1,459 @@
+{
+  "weddingDate": "",
+  "couple": "Keyla & Cristian",
+  "guests": [],
+  "budget": [
+    {
+      "id": "5ecd057f50xhm",
+      "cat": "Lugar / Banquete",
+      "item": "Arriendo del lugar",
+      "total": 11017000,
+      "abonos": [
+        {
+          "id": "5ecd057f31dqn",
+          "fecha": "2026-04-01",
+          "monto": 3480100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f32fyk",
+          "fecha": "2026-05-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f33epn",
+          "fecha": "2026-06-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f34bvc",
+          "fecha": "2026-07-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f35yrs",
+          "fecha": "2026-08-01",
+          "monto": 507100,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f36zkk",
+          "fecha": "2026-09-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f37wlt",
+          "fecha": "2026-10-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f38psz",
+          "fecha": "2026-11-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f39occ",
+          "fecha": "2026-12-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f40ipw",
+          "fecha": "2027-01-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f41vcb",
+          "fecha": "2027-02-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f42xwj",
+          "fecha": "2027-03-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f43usv",
+          "fecha": "2027-04-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f44ojw",
+          "fecha": "2027-05-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f45mvl",
+          "fecha": "2027-06-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f46aol",
+          "fecha": "2027-07-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f47ftd",
+          "fecha": "2027-08-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f48pbg",
+          "fecha": "2027-09-01",
+          "monto": 400000,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f49yje",
+          "fecha": "2027-10-01",
+          "monto": 308500,
+          "pagado": false
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f52fom",
+      "cat": "Música",
+      "item": "Música ceremonia",
+      "total": 180000,
+      "abonos": [
+        {
+          "id": "5ecd057f51mpc",
+          "fecha": "2026-06-01",
+          "monto": 100000,
+          "pagado": true
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f53rie",
+      "cat": "Flores / Decoración",
+      "item": "Decoración ceremonia",
+      "total": 300000,
+      "abonos": [],
+      "open": false
+    },
+    {
+      "id": "5ecd057f60sfi",
+      "cat": "Fotografía / Video",
+      "item": "Equipo fotográfico",
+      "total": 1890000,
+      "abonos": [
+        {
+          "id": "5ecd057f54nri",
+          "fecha": "2026-07-01",
+          "monto": 157500,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f55wnl",
+          "fecha": "2026-08-01",
+          "monto": 157500,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f56vmh",
+          "fecha": "2026-09-01",
+          "monto": 157500,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f57ecf",
+          "fecha": "2026-10-01",
+          "monto": 157500,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f58ehv",
+          "fecha": "2026-11-01",
+          "monto": 157500,
+          "pagado": false
+        },
+        {
+          "id": "5ecd057f59hap",
+          "fecha": "2026-12-01",
+          "monto": 157500,
+          "pagado": false
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f63tsk",
+      "cat": "Música",
+      "item": "Daap Producciones",
+      "total": 1700000,
+      "abonos": [
+        {
+          "id": "5ecd057f61jae",
+          "fecha": "2026-05-01",
+          "monto": 100000,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f62nrl",
+          "fecha": "2026-06-01",
+          "monto": 325000,
+          "pagado": true
+        }
+      ],
+      "open": false
+    },
+    {
+      "id": "5ecd057f67yvz",
+      "cat": "Otros",
+      "item": "Mimi",
+      "total": 630000,
+      "abonos": [
+        {
+          "id": "5ecd057f64ewq",
+          "fecha": "2026-05-01",
+          "monto": 63000,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f65tuv",
+          "fecha": "2026-06-01",
+          "monto": 63000,
+          "pagado": true
+        },
+        {
+          "id": "5ecd057f66xbo",
+          "fecha": "2026-07-01",
+          "monto": 63000,
+          "pagado": true
+        }
+      ],
+      "open": false
+    }
+  ],
+  "vendors": [],
+  "tasks": [
+    {
+      "id": "5ecd03a81kem",
+      "phase": "Más de 12 meses antes",
+      "name": "Definir presupuesto total",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a82ubc",
+      "phase": "Más de 12 meses antes",
+      "name": "Elegir fecha tentativa",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a83rdl",
+      "phase": "Más de 12 meses antes",
+      "name": "Hacer lista preliminar de invitados",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a84sbq",
+      "phase": "Más de 12 meses antes",
+      "name": "Definir estilo y tipo de boda",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a85gbc",
+      "phase": "Más de 12 meses antes",
+      "name": "Reservar el lugar de la ceremonia y recepción",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a86nnc",
+      "phase": "12 - 9 meses antes",
+      "name": "Contratar fotógrafo y video",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a87hcr",
+      "phase": "12 - 9 meses antes",
+      "name": "Contratar banquete / catering",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a88nbs",
+      "phase": "12 - 9 meses antes",
+      "name": "Reservar música / DJ o grupo",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a89dhu",
+      "phase": "12 - 9 meses antes",
+      "name": "Elegir vestido / traje",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a810usb",
+      "phase": "12 - 9 meses antes",
+      "name": "Enviar 'save the date'",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a811ssm",
+      "phase": "9 - 6 meses antes",
+      "name": "Definir menú y hacer degustación",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a812bhb",
+      "phase": "9 - 6 meses antes",
+      "name": "Contratar decoración y flores",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a813rej",
+      "phase": "9 - 6 meses antes",
+      "name": "Reservar transporte",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a814ner",
+      "phase": "9 - 6 meses antes",
+      "name": "Planear luna de miel",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a815dsj",
+      "phase": "9 - 6 meses antes",
+      "name": "Elegir anillos",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a816rvf",
+      "phase": "6 - 3 meses antes",
+      "name": "Enviar invitaciones formales",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a817dss",
+      "phase": "6 - 3 meses antes",
+      "name": "Comprar / encargar pastel",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a818ugl",
+      "phase": "6 - 3 meses antes",
+      "name": "Pruebas de vestido / traje",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a819drw",
+      "phase": "6 - 3 meses antes",
+      "name": "Definir lista de canciones",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a820csb",
+      "phase": "6 - 3 meses antes",
+      "name": "Reservar noche de bodas / hospedaje",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a821tgp",
+      "phase": "2 - 1 mes antes",
+      "name": "Confirmar asistencia (RSVP)",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a822vrn",
+      "phase": "2 - 1 mes antes",
+      "name": "Definir distribución de mesas",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a823yko",
+      "phase": "2 - 1 mes antes",
+      "name": "Últimos pagos a proveedores",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a824sol",
+      "phase": "2 - 1 mes antes",
+      "name": "Prueba de maquillaje y peinado",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a825jhz",
+      "phase": "2 - 1 mes antes",
+      "name": "Confirmar detalles con cada proveedor",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a826fwy",
+      "phase": "Última semana",
+      "name": "Recoger vestido / traje y anillos",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a827hcs",
+      "phase": "Última semana",
+      "name": "Confirmar horarios con todos los proveedores",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a828jqp",
+      "phase": "Última semana",
+      "name": "Preparar kit de emergencia",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a829kxo",
+      "phase": "Última semana",
+      "name": "Delegar tareas del día a personas de confianza",
+      "done": false,
+      "date": ""
+    },
+    {
+      "id": "5ecd03a830jtc",
+      "phase": "El día de la boda",
+      "name": "¡Disfrutar y relajarse!",
+      "done": false,
+      "date": ""
+    }
+  ]
+}
