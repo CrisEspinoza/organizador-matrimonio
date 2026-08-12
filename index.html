@@ -1274,7 +1274,7 @@ function renderGuests(){
   else b.innerHTML=data.guests.map((g,i)=>{
     const names=g.companionNames||[];
     let row=`<tr>
-    <td><a class="row-toggle" onclick="toggleGuest('${g.id}')">${g.open?'▾':'▸'} ${esc(g.name)}</a></td><td>${esc(g.group)||'—'}</td>
+    <td><span class="row-toggle" onclick="toggleGuest('${g.id}')" style="cursor:pointer;user-select:none;margin-right:4px">${g.open?'▾':'▸'}</span><input class="inline-edit" style="min-width:120px" value="${esc(g.name)}" title="Nombre" onchange="editGuest('${g.id}','name',this.value)"></td><td><input class="inline-edit" style="min-width:90px" value="${esc(g.group)}" placeholder="—" title="Grupo" onchange="editGuest('${g.id}','group',this.value)"></td>
     <td><select class="inline-edit status-sel" onchange="editGuest('${g.id}','rsvp',this.value)">
       ${['pendiente','confirmado','rechazado'].map(o=>`<option value="${o}" ${g.rsvp===o?'selected':''}>${o==='pendiente'?'Pendiente':o==='confirmado'?'Confirmado':'No asiste'}</option>`).join('')}
     </select></td>
