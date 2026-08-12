@@ -726,8 +726,6 @@
   <button data-tab="presupuesto">Presupuesto</button>
   <button data-tab="proveedores">Proveedores</button>
   <button data-tab="tareas">Tareas</button>
-  <button data-tab="cronograma">Cronograma</button>
-  <button data-tab="citas">Citas</button>
   <button data-tab="musica">Música</button>
   <button data-tab="compras">Por comprar</button>
   <button data-tab="notas">Notas</button>
@@ -892,35 +890,6 @@
   </section>
 
   <!-- CRONOGRAMA DEL DÍA -->
-  <section id="cronograma">
-    <h2>Cronograma del día</h2>
-    <p class="section-desc">El minuto a minuto del gran día, ordenado por hora automáticamente.</p>
-    <div class="card">
-      <div class="add-inline">
-        <input id="tlTime" type="time" style="max-width:130px;flex:none">
-        <input id="tlAct" placeholder="Actividad (ej. Llegada de los novios)">
-        <button class="btn" onclick="addTimeline()">+ Agregar</button>
-      </div>
-      <div id="timelineList" style="margin-top:14px"></div>
-    </div>
-  </section>
-
-  <!-- CITAS / CALENDARIO -->
-  <section id="citas">
-    <h2>Citas y calendario</h2>
-    <p class="section-desc">Reuniones con proveedores y pendientes con fecha. Agrega cada cita a tu Google Calendar con un clic.</p>
-    <div class="card">
-      <div class="form-row">
-        <div class="field"><label>Título</label><input id="apTitle" placeholder="Ej. Degustación con banquete"></div>
-        <div class="field"><label>Fecha</label><input id="apDate" type="date"></div>
-        <div class="field"><label>Hora</label><input id="apTime" type="time"></div>
-        <div class="field"><label>Lugar</label><input id="apPlace" placeholder="Opcional"></div>
-        <div class="field"><button class="btn" onclick="addAppt()">+ Agregar cita</button></div>
-      </div>
-      <div id="apptList" style="margin-top:6px"></div>
-    </div>
-  </section>
-
   <!-- NOTAS Y MOODBOARD -->
   <!-- MUSICA -->
   <section id="musica">
@@ -1788,60 +1757,6 @@ document.addEventListener("dragleave",e=>{ if(e.target.classList&&e.target.class
 function assignGuest(gid,tid){ const g=data.guests.find(x=>x.id===gid); if(g){ g.tableId=tid; save(); renderMesas(); renderGuests(); } }
 
 /* ---------- Cronograma del día ---------- */
-function addTimeline(){
-  const act=document.getElementById("tlAct").value.trim();
-  const time=document.getElementById("tlTime").value;
-  if(!act){ toast("Escribe la actividad"); return; }
-  data.timeline.push({id:id(),time,act});
-  document.getElementById("tlAct").value="";document.getElementById("tlTime").value="";
-  save(); renderTimeline(); toast("Agregado al cronograma");
-}
-function delTimeline(tid){ data.timeline=data.timeline.filter(t=>t.id!==tid); save(); renderTimeline(); }
-function renderTimeline(){
-  const el=document.getElementById("timelineList");
-  const items=data.timeline.slice().sort((a,b)=>(a.time||"99").localeCompare(b.time||"99"));
-  if(!items.length){ el.innerHTML='<div class="empty">Sin actividades aún. Agrega la primera arriba.</div>'; return; }
-  el.innerHTML=items.map(t=>`<div class="tl-item">
-    <span class="tl-time">${t.time||'--:--'}</span><span class="tl-dot"></span>
-    <span class="tl-act">${esc(t.act)}</span>
-    <button class="btn danger" onclick="delTimeline('${t.id}')">✕</button></div>`).join('');
-}
-
-/* ---------- Citas / Calendario ---------- */
-function addAppt(){
-  const title=document.getElementById("apTitle").value.trim();
-  const date=document.getElementById("apDate").value;
-  if(!title){ toast("Escribe el título"); return; }
-  if(!date){ toast("Elige una fecha"); return; }
-  data.appointments.push({id:id(),title,date,time:document.getElementById("apTime").value,place:document.getElementById("apPlace").value.trim()});
-  ["apTitle","apDate","apTime","apPlace"].forEach(i=>document.getElementById(i).value="");
-  save(); renderAppts(); toast("Cita agregada");
-}
-function delAppt(aid){ data.appointments=data.appointments.filter(a=>a.id!==aid); save(); renderAppts(); }
-function gcalLink(a){
-  const start=a.date.replace(/-/g,"")+(a.time?"T"+a.time.replace(":","")+"00":"");
-  let end=start;
-  if(a.time){ let h=(+a.time.slice(0,2)+1)%24; end=a.date.replace(/-/g,"")+"T"+String(h).padStart(2,"0")+a.time.slice(3,5)+"00"; }
-  const dates=a.time?`${start}/${end}`:`${a.date.replace(/-/g,"")}/${a.date.replace(/-/g,"")}`;
-  const p=new URLSearchParams({action:"TEMPLATE",text:a.title,dates,location:a.place||"",details:"Cita de matrimonio"});
-  return "https://www.google.com/calendar/render?"+p.toString();
-}
-function renderAppts(){
-  const el=document.getElementById("apptList");
-  const items=data.appointments.slice().sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||"")));
-  if(!items.length){ el.innerHTML='<div class="empty">Sin citas aún. Agenda la primera arriba.</div>'; return; }
-  const today=new Date().toISOString().slice(0,10);
-  el.innerHTML=items.map(a=>{
-    const d=new Date(a.date+"T00:00:00");
-    const past=a.date<today;
-    return `<div class="ap-item ${past?'ap-past':''}">
-      <div class="ap-when"><div class="d">${d.getDate()}</div><div class="m">${d.toLocaleDateString("es-MX",{month:"short"})}</div></div>
-      <div class="ap-body"><div class="t">${esc(a.title)}</div>
-        <div class="s">${d.toLocaleDateString("es-MX",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}${a.time?' · '+a.time:''}${a.place?' · '+esc(a.place):''}</div></div>
-      <a class="btn sm light" href="${gcalLink(a)}" target="_blank" rel="noopener">📅 Google Calendar</a>
-      <button class="btn danger" onclick="delAppt('${a.id}')">✕</button></div>`;
-  }).join('');
-}
 
 /* ---------- Notas (estilo iPhone: bandeja + edición) ---------- */
 let _curNote=null;
@@ -2065,7 +1980,7 @@ function renderAll(){
   renderHeader(); renderCountdown(); renderStats();
   renderGuests(); renderBudget(); fillPhaseSelect(); renderTasks(); renderVendors(); renderComprobantes();
   renderNotes();
-  renderMesas(); renderTimeline(); renderAppts(); renderMood(); renderTips(); renderMusic(); renderShopping();
+  renderMesas(); renderMood(); renderTips(); renderMusic(); renderShopping();
 }
 renderAll();
 
