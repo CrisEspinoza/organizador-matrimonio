@@ -1014,9 +1014,17 @@
 
   <!-- CONSEJOS -->
   <section id="consejos">
-    <h2>Consejos para tu boda</h2>
-    <p class="section-desc">Ideas prácticas de organización. Toca cada tema para desplegarlo.</p>
+    <h2>Consejos e ideas</h2>
+    <p class="section-desc">Tus temas e ideas. Edita, agrega o borra lo que quieras; todo se guarda solo.</p>
     <div id="tipsList"></div>
+    <div class="card" style="margin-top:12px">
+      <div class="field"><label>Nuevo tema</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="tipNew" placeholder="Ej.: Ideas de decoración, canciones..." style="flex:1">
+          <button class="btn" onclick="addTip()">＋ Tema</button>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
 
@@ -1143,6 +1151,15 @@ const DEFAULT_TASKS=[
 ];
 const PHASES=["12 meses antes","9 meses antes","6 meses antes","3 meses antes","1 mes antes","15 días antes","Última semana","Un día antes","El día de la boda","Personalizadas"];
 const PHASE_ALIAS={"Más de 12 meses antes":"12 meses antes","12 - 9 meses antes":"9 meses antes","9 - 6 meses antes":"6 meses antes","6 - 3 meses antes":"3 meses antes","2 - 1 mes antes":"1 mes antes"};
+const DEFAULT_TIPS=[
+  ["Presupuesto",["Define un monto máximo antes de cotizar y deja ~10% de colchón para imprevistos.","El banquete suele ser el mayor gasto (40-50%); cotiza al menos 3 opciones.","Prioriza lo que más recordarán tus invitados: comida, música y fotos.","Lleva un registro de abonos y comprobantes para no perder el control (ya lo tienes aquí)."]],
+  ["Invitados y confirmaciones",["Cierra la lista con tu pareja y familias antes de reservar el lugar.","Pide confirmación con fecha límite (2-3 semanas antes) y haz seguimiento.","Anota restricciones alimentarias al momento de confirmar.","Considera un 10-15% de ausencias sobre los confirmados."]],
+  ["Proveedores",["Firma contrato con todo por escrito: fecha, hora, incluido y forma de pago.","Guarda cada comprobante de abono; sirve como respaldo ante cualquier duda.","Confirma detalles y horarios con cada proveedor la semana previa.","Ten datos de contacto de todos a mano el día de la boda."]],
+  ["Distribución de mesas",["Arma las mesas solo con los confirmados para no rehacer todo.","Ubica a los adultos mayores lejos de los parlantes.","Mezcla grupos con cuidado: cerca de gente que se lleve bien.","Deja una mesa flexible para ajustes de último minuto."]],
+  ["Cronograma del día",["Empieza a maquillarte/vestirte con más tiempo del que crees.","Deja aire entre ceremonia y fiesta para fotos y traslados.","Asigna a alguien de confianza para coordinar horarios ese día.","Ten un kit de emergencia: costurero, pastillas, curitas, toallitas."]],
+  ["Fotografía y recuerdos",["Haz una lista de fotos imprescindibles (familias, grupos) y compártela con el fotógrafo.","Considera una sesión previa para soltarte frente a la cámara.","Define quién recoge regalos y pertenencias al final de la noche."]],
+  ["Bienestar de la pareja",["Reserva momentos para comer y respirar durante el día.","Delega: no intentes resolver todo tú mismo ese día.","Recuerda el motivo de todo: disfrutar y celebrar en pareja."]]
+];
 
 let data=load();
 
@@ -1155,6 +1172,10 @@ function migrate(d){
   // migra la nota única (texto) a lista de notas individuales
   if(!Array.isArray(d.noteList)){
     d.noteList = (d.notes && d.notes.trim()) ? [{id:id(),text:d.notes,ts:Date.now()}] : [];
+  }
+  // siembra consejos editables desde la lista base (solo la primera vez)
+  if(!Array.isArray(d.tips)){
+    d.tips = DEFAULT_TIPS.map(t=>({id:id(),title:t[0],items:t[1].slice()}));
   }
   if(!d.moodboard) d.moodboard=[];
   if(!d.music) d.music=[];
@@ -1898,20 +1919,49 @@ function renderMood(){
   data.moodboard.forEach(m=>{ if((m.type||'').startsWith('image')){ getFile(m.id).then(b=>{ if(b){ const el2=document.getElementById("mo_"+m.id); if(el2){ el2.outerHTML='<img src="'+URL.createObjectURL(b)+'" onclick="viewComprobante(\''+m.id+'\')">'; } } }); } });
 }
 
-/* ---------- Consejos ---------- */
-const TIPS=[
-  ["Presupuesto",["Define un monto máximo antes de cotizar y deja ~10% de colchón para imprevistos.","El banquete suele ser el mayor gasto (40-50%); cotiza al menos 3 opciones.","Prioriza lo que más recordarán tus invitados: comida, música y fotos.","Lleva un registro de abonos y comprobantes para no perder el control (ya lo tienes aquí)."]],
-  ["Invitados y confirmaciones",["Cierra la lista con tu pareja y familias antes de reservar el lugar.","Pide confirmación con fecha límite (2-3 semanas antes) y haz seguimiento.","Anota restricciones alimentarias al momento de confirmar.","Considera un 10-15% de ausencias sobre los confirmados."]],
-  ["Proveedores",["Firma contrato con todo por escrito: fecha, hora, incluido y forma de pago.","Guarda cada comprobante de abono; sirve como respaldo ante cualquier duda.","Confirma detalles y horarios con cada proveedor la semana previa.","Ten datos de contacto de todos a mano el día de la boda."]],
-  ["Distribución de mesas",["Arma las mesas solo con los confirmados para no rehacer todo.","Ubica a los adultos mayores lejos de los parlantes.","Mezcla grupos con cuidado: cerca de gente que se lleve bien.","Deja una mesa flexible para ajustes de último minuto."]],
-  ["Cronograma del día",["Empieza a maquillarte/vestirte con más tiempo del que crees.","Deja aire entre ceremonia y fiesta para fotos y traslados.","Asigna a alguien de confianza para coordinar horarios ese día.","Ten un kit de emergencia: costurero, pastillas, curitas, toallitas."]],
-  ["Fotografía y recuerdos",["Haz una lista de fotos imprescindibles (familias, grupos) y compártela con el fotógrafo.","Considera una sesión previa para soltarte frente a la cámara.","Define quién recoge regalos y pertenencias al final de la noche."]],
-  ["Bienestar de la pareja",["Reserva momentos para comer y respirar durante el día.","Delega: no intentes resolver todo tú mismo ese día.","Recuerda el motivo de todo: disfrutar y celebrar en pareja."]]
-];
+/* ---------- Consejos (editables) ---------- */
+function addTip(){
+  const el=document.getElementById("tipNew");
+  const title=el.value.trim();
+  if(!title){ toast("Escribe un tema"); return; }
+  data.tips.push({id:id(),title,items:[]});
+  el.value="";
+  save(); renderTips(); toast("Tema agregado");
+}
+function editTipTitle(tid,v){ const t=data.tips.find(x=>x.id===tid); if(t){ t.title=v; save(); } }
+function delTip(tid){
+  const t=data.tips.find(x=>x.id===tid); if(!t) return;
+  if(!confirm('¿Borrar el tema "'+(t.title||'')+'" y todas sus ideas?')) return;
+  data.tips=data.tips.filter(x=>x.id!==tid);
+  save(); renderTips(); toast("Tema borrado");
+}
+function addTipItem(tid){
+  const t=data.tips.find(x=>x.id===tid); if(!t) return;
+  const el=document.getElementById("ti_"+tid);
+  const v=el.value.trim(); if(!v){ toast("Escribe una idea"); return; }
+  t.items.push(v); el.value="";
+  save(); renderTips();
+}
+function editTipItem(tid,idx,v){ const t=data.tips.find(x=>x.id===tid); if(t&&t.items[idx]!=null){ t.items[idx]=v; save(); } }
+function delTipItem(tid,idx){ const t=data.tips.find(x=>x.id===tid); if(t){ t.items.splice(idx,1); save(); renderTips(); } }
 function renderTips(){
-  document.getElementById("tipsList").innerHTML=TIPS.map(([t,items])=>`<details class="tip">
-    <summary>${t}</summary>
-    <div class="tip-body"><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul></div></details>`).join('');
+  const cont=document.getElementById("tipsList");
+  if(!data.tips||!data.tips.length){ cont.innerHTML='<div class="empty">Aún no hay temas. Agrega el primero abajo.</div>'; }
+  else cont.innerHTML=data.tips.map(t=>`<details class="tip" open>
+    <summary>${esc(t.title)}</summary>
+    <div class="tip-body">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <input class="inline-edit" style="flex:1" value="${esc(t.title)}" title="Editar tema" onchange="editTipTitle('${t.id}',this.value)">
+        <button class="btn danger sm" onclick="delTip('${t.id}')">✕ Tema</button>
+      </div>
+      ${t.items.map((it,i)=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+        <input class="inline-edit" style="flex:1" value="${esc(it)}" onchange="editTipItem('${t.id}',${i},this.value)">
+        <button class="btn danger sm" onclick="delTipItem('${t.id}',${i})">✕</button></div>`).join('')}
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+        <input id="ti_${t.id}" placeholder="Nueva idea..." style="flex:1">
+        <button class="btn sm" onclick="addTipItem('${t.id}')">＋ Idea</button>
+      </div>
+    </div></details>`).join('');
 }
 
 /* ---------- Exportar / Importar (incluye comprobantes) ---------- */
