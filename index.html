@@ -984,8 +984,23 @@
     <h2>Notas y moodboard</h2>
     <p class="section-desc">Anota ideas libres y guarda imágenes de inspiración.</p>
     <div class="card">
-      <div class="field"><label>Notas</label>
-        <textarea id="notesArea" rows="8" placeholder="Ideas, colores, canciones, pendientes sueltos..." oninput="setNotes()"></textarea>
+      <!-- Vista lista (bandeja) -->
+      <div id="notesListView">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="font-size:16px">Notas</h2>
+          <button class="btn sm" onclick="newNote()" title="Nueva nota">✎ Nueva</button>
+        </div>
+        <input id="noteSearch" placeholder="Buscar" oninput="renderNotes()" style="width:100%;box-sizing:border-box;margin-bottom:10px">
+        <div id="notesList"></div>
+      </div>
+      <!-- Vista edición (nota abierta) -->
+      <div id="noteEditView" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <button class="btn sm light" onclick="backToNotes()">‹ Notas</button>
+          <button class="btn danger sm" onclick="delCurrentNote()">✕ Borrar</button>
+        </div>
+        <div id="noteEditDate" style="text-align:center;font-size:11px;color:var(--muted);margin-bottom:8px"></div>
+        <textarea id="noteEditArea" rows="12" style="width:100%;resize:vertical;font:inherit;line-height:1.6;padding:10px;border:1px solid var(--line);border-radius:8px;box-sizing:border-box" placeholder="Escribe tu nota... La primera línea será el título." oninput="editCurrentNote(this.value)"></textarea>
       </div>
     </div>
     <div class="card">
@@ -1137,6 +1152,10 @@ function migrate(d){
   if(!d.timeline) d.timeline=[];
   if(!d.appointments) d.appointments=[];
   if(d.notes==null) d.notes="";
+  // migra la nota única (texto) a lista de notas individuales
+  if(!Array.isArray(d.noteList)){
+    d.noteList = (d.notes && d.notes.trim()) ? [{id:id(),text:d.notes,ts:Date.now()}] : [];
+  }
   if(!d.moodboard) d.moodboard=[];
   if(!d.music) d.music=[];
   if(!Array.isArray(d.shopping)) d.shopping=DEFAULT_SHOPPING.map(n=>({id:id(),name:n,note:"",done:false}));
@@ -1194,6 +1213,7 @@ document.querySelectorAll("#nav button").forEach(b=>{
     document.querySelectorAll("main section").forEach(x=>x.classList.remove("active"));
     b.classList.add("active");
     document.getElementById(b.dataset.tab).classList.add("active");
+    if(b.dataset.tab==="notas" && _curNote===null){ document.getElementById("noteEditView").style.display="none"; document.getElementById("notesListView").style.display="block"; renderNotes(); }
   };
 });
 
@@ -1802,8 +1822,63 @@ function renderAppts(){
   }).join('');
 }
 
-/* ---------- Notas y Moodboard ---------- */
-function setNotes(){ data.notes=document.getElementById("notesArea").value; save(); }
+/* ---------- Notas (estilo iPhone: bandeja + edición) ---------- */
+let _curNote=null;
+function noteTitle(t){ const first=((t||"").split("\n")[0]||"").trim(); return first||"Nota nueva"; }
+function notePreview(t){ const rest=((t||"").split("\n").slice(1).join(" ")).trim(); return rest||"Sin texto adicional"; }
+function newNote(){
+  const n={id:id(),text:"",ts:Date.now()};
+  data.noteList.unshift(n);
+  openNote(n.id);
+}
+function openNote(nid){
+  _curNote=nid;
+  const n=data.noteList.find(x=>x.id===nid); if(!n) return;
+  const d=new Date(n.ts||Date.now());
+  document.getElementById("noteEditDate").textContent=isNaN(d)?'':d.toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
+  document.getElementById("noteEditArea").value=n.text||"";
+  document.getElementById("notesListView").style.display="none";
+  document.getElementById("noteEditView").style.display="block";
+  document.getElementById("noteEditArea").focus();
+}
+function editCurrentNote(v){ const n=data.noteList.find(x=>x.id===_curNote); if(n){ n.text=v; n.ts=Date.now(); save(); } }
+function backToNotes(){
+  // descarta la nota si quedó vacía (como iPhone)
+  const n=data.noteList.find(x=>x.id===_curNote);
+  if(n && !(n.text||"").trim()){ data.noteList=data.noteList.filter(x=>x.id!==_curNote); save(); }
+  _curNote=null;
+  document.getElementById("noteEditView").style.display="none";
+  document.getElementById("notesListView").style.display="block";
+  renderNotes();
+}
+function delCurrentNote(){
+  const n=data.noteList.find(x=>x.id===_curNote); if(!n) return;
+  if((n.text||"").trim() && !confirm('¿Borrar esta nota?\n\n"'+noteTitle(n.text)+'"')) return;
+  data.noteList=data.noteList.filter(x=>x.id!==_curNote);
+  _curNote=null; save();
+  document.getElementById("noteEditView").style.display="none";
+  document.getElementById("notesListView").style.display="block";
+  renderNotes(); toast("Nota borrada");
+}
+function renderNotes(){
+  const cont=document.getElementById("notesList");
+  if(!cont) return;
+  const q=(document.getElementById("noteSearch")?.value||"").toLowerCase().trim();
+  const list=[...(data.noteList||[])].sort((a,b)=>(b.ts||0)-(a.ts||0))
+    .filter(n=>!q||(n.text||"").toLowerCase().includes(q));
+  if(!list.length){
+    cont.innerHTML=`<div class="empty">${q?'Sin resultados.':'Aún no hay notas. Toca ✎ Nueva para crear una.'}</div>`;
+    return;
+  }
+  cont.innerHTML=list.map(n=>{
+    const d=new Date(n.ts||Date.now());
+    const fecha=isNaN(d)?'':d.toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"});
+    return `<div class="note-row" onclick="openNote('${n.id}')" style="padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer">
+      <div style="font-size:14.5px;font-weight:600;color:var(--ink)">${esc(noteTitle(n.text))}</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fecha} · ${esc(notePreview(n.text))}</div>
+    </div>`;
+  }).join('');
+}
 async function handleMood(e){
   const f=e.target.files[0]; if(!f){ return; }
   const cid=id(); let warn="";
@@ -1939,7 +2014,7 @@ function renderAll(){
   document.getElementById("coupleNames").value=data.couple||"";
   renderHeader(); renderCountdown(); renderStats();
   renderGuests(); renderBudget(); fillPhaseSelect(); renderTasks(); renderVendors(); renderComprobantes();
-  document.getElementById("notesArea").value=data.notes||"";
+  renderNotes();
   renderMesas(); renderTimeline(); renderAppts(); renderMood(); renderTips(); renderMusic(); renderShopping();
 }
 renderAll();
