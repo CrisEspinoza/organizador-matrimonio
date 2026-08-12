@@ -1095,38 +1095,39 @@ async function dataURLtoBlob(u){
 const KEY="matrimonio_organizador_v1";
 const DEFAULT_SHOPPING=["Vestido de novia","Velo","Zapatos de novia","Ropa interior","Traje / terno del novio","Zapatos del novio","Anillos","Cotillón","Recuerdos para invitados","Accesorios y joyería","Ramo","Libro de firmas"];
 const DEFAULT_TASKS=[
-  ["Más de 12 meses antes","Definir presupuesto total"],
-  ["Más de 12 meses antes","Elegir fecha tentativa"],
-  ["Más de 12 meses antes","Hacer lista preliminar de invitados"],
-  ["Más de 12 meses antes","Definir estilo y tipo de boda"],
-  ["Más de 12 meses antes","Reservar el lugar de la ceremonia y recepción"],
-  ["12 - 9 meses antes","Contratar fotógrafo y video"],
-  ["12 - 9 meses antes","Contratar banquete / catering"],
-  ["12 - 9 meses antes","Reservar música / DJ o grupo"],
-  ["12 - 9 meses antes","Elegir vestido / traje"],
-  ["12 - 9 meses antes","Enviar 'save the date'"],
-  ["9 - 6 meses antes","Definir menú y hacer degustación"],
-  ["9 - 6 meses antes","Contratar decoración y flores"],
-  ["9 - 6 meses antes","Reservar transporte"],
-  ["9 - 6 meses antes","Planear luna de miel"],
-  ["9 - 6 meses antes","Elegir anillos"],
-  ["6 - 3 meses antes","Enviar invitaciones formales"],
-  ["6 - 3 meses antes","Comprar / encargar pastel"],
-  ["6 - 3 meses antes","Pruebas de vestido / traje"],
-  ["6 - 3 meses antes","Definir lista de canciones"],
-  ["6 - 3 meses antes","Reservar noche de bodas / hospedaje"],
-  ["2 - 1 mes antes","Confirmar asistencia (RSVP)"],
-  ["2 - 1 mes antes","Definir distribución de mesas"],
-  ["2 - 1 mes antes","Últimos pagos a proveedores"],
-  ["2 - 1 mes antes","Prueba de maquillaje y peinado"],
-  ["2 - 1 mes antes","Confirmar detalles con cada proveedor"],
+  ["12 meses antes","Definir presupuesto total"],
+  ["12 meses antes","Elegir fecha tentativa"],
+  ["12 meses antes","Hacer lista preliminar de invitados"],
+  ["12 meses antes","Definir estilo y tipo de boda"],
+  ["12 meses antes","Reservar el lugar de la ceremonia y recepción"],
+  ["9 meses antes","Contratar fotógrafo y video"],
+  ["9 meses antes","Contratar banquete / catering"],
+  ["9 meses antes","Reservar música / DJ o grupo"],
+  ["9 meses antes","Elegir vestido / traje"],
+  ["9 meses antes","Enviar 'save the date'"],
+  ["6 meses antes","Definir menú y hacer degustación"],
+  ["6 meses antes","Contratar decoración y flores"],
+  ["6 meses antes","Reservar transporte"],
+  ["6 meses antes","Planear luna de miel"],
+  ["6 meses antes","Elegir anillos"],
+  ["3 meses antes","Enviar invitaciones formales"],
+  ["3 meses antes","Comprar / encargar pastel"],
+  ["3 meses antes","Pruebas de vestido / traje"],
+  ["3 meses antes","Definir lista de canciones"],
+  ["3 meses antes","Reservar noche de bodas / hospedaje"],
+  ["1 mes antes","Confirmar asistencia (RSVP)"],
+  ["1 mes antes","Definir distribución de mesas"],
+  ["1 mes antes","Últimos pagos a proveedores"],
+  ["1 mes antes","Prueba de maquillaje y peinado"],
+  ["1 mes antes","Confirmar detalles con cada proveedor"],
   ["Última semana","Recoger vestido / traje y anillos"],
   ["Última semana","Confirmar horarios con todos los proveedores"],
   ["Última semana","Preparar kit de emergencia"],
   ["Última semana","Delegar tareas del día a personas de confianza"],
   ["El día de la boda","¡Disfrutar y relajarse!"]
 ];
-const PHASES=["Más de 12 meses antes","12 - 9 meses antes","9 - 6 meses antes","6 - 3 meses antes","2 - 1 mes antes","Última semana","El día de la boda","Personalizadas"];
+const PHASES=["12 meses antes","9 meses antes","6 meses antes","3 meses antes","1 mes antes","15 días antes","Última semana","Un día antes","El día de la boda","Personalizadas"];
+const PHASE_ALIAS={"Más de 12 meses antes":"12 meses antes","12 - 9 meses antes":"9 meses antes","9 - 6 meses antes":"6 meses antes","6 - 3 meses antes":"3 meses antes","2 - 1 mes antes":"1 mes antes"};
 
 let data=load();
 
@@ -1140,6 +1141,8 @@ function migrate(d){
   if(!d.music) d.music=[];
   if(!Array.isArray(d.shopping)) d.shopping=DEFAULT_SHOPPING.map(n=>({id:id(),name:n,note:"",done:false}));
   (d.guests||[]).forEach(g=>{ if(!Array.isArray(g.companionNames)) g.companionNames=[]; });
+  // remapea hitos antiguos de tareas a los nuevos nombres
+  (d.tasks||[]).forEach(t=>{ if(PHASE_ALIAS[t.phase]) t.phase=PHASE_ALIAS[t.phase]; });
   // convierte presupuesto antiguo (est/real/paid) al modelo de abonos
   (d.budget||[]).forEach(x=>{
     if(x.abonos) return;
