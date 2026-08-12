@@ -1031,6 +1031,7 @@ const firebaseConfig = {
 const DB_NAME="matrimonio_files"; let _db=null; let _idbOK=null;
 const _memFiles=new Map();
 const LS_PREFIX="mf_";
+let db=null, docRef=null, cloudReady=false, pushT=null, unsubSnap=null;  // estado de la nube (declarado temprano para las funciones de archivos)
 function openDB(){
   return new Promise((res,rej)=>{
     if(_db) return res(_db);
@@ -1047,6 +1048,7 @@ async function _idbPut(k,blob){ const db=await openDB(); return new Promise((res
 async function _idbGet(k){ const db=await openDB(); return new Promise((res,rej)=>{const tx=db.transaction("files","readonly");const q=tx.objectStore("files").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);}); }
 async function _idbDel(k){ const db=await openDB(); return new Promise((res)=>{const tx=db.transaction("files","readwrite");tx.objectStore("files").delete(k);tx.oncomplete=()=>res();tx.onerror=()=>res();}); }
 
+const CLOUD_FILE_MAX=950000; // ~0.95 MB: bajo el límite de 1 MB por documento de Firestore
 async function putFile(k,blob){
   _memFiles.set(k,blob);            // siempre disponible en esta sesión
   // Guardamos SIEMPRE como texto (data URL). Chrome bloquea guardar Blobs en
@@ -1054,21 +1056,90 @@ async function putFile(k,blob){
   let url;
   try{ url=await blobToDataURL(blob); }
   catch(e){ throw new Error("no-read"); }
-  try{ await _idbPut(k,url); _idbOK=true; return; }
+  let persisted=false;
+  try{ await _idbPut(k,url); _idbOK=true; persisted=true; }
   catch(e){ _idbOK=false; }
-  try{ localStorage.setItem(LS_PREFIX+k,url); }
-  catch(e){ throw new Error("no-persist"); }  // el archivo sigue en memoria esta sesión
+  if(!persisted){ try{ localStorage.setItem(LS_PREFIX+k,url); persisted=true; }catch(e){} }
+  // Copia a la nube (comprimida) para que el otro usuario también la vea. Nunca bloquea.
+  try{ await cloudPutFileFromBlob(k,blob); }catch(e){ console.warn("archivo nube:",e); }
+  if(!persisted) throw new Error("no-persist");  // el archivo sigue en memoria esta sesión
 }
-async function getFile(k){
+// Lectura solo local (mem / IndexedDB / localStorage), sin tocar la nube
+async function getFileLocal(k){
   if(_memFiles.has(k)) return _memFiles.get(k);
   try{ const v=await _idbGet(k); if(v){ const b=(typeof v==="string")?await dataURLtoBlob(v):v; _memFiles.set(k,b); return b; } }catch(e){}
   try{ const u=localStorage.getItem(LS_PREFIX+k); if(u){ const b=await dataURLtoBlob(u); _memFiles.set(k,b); return b; } }catch(e){}
+  return null;
+}
+async function getFile(k){
+  const local=await getFileLocal(k);
+  if(local) return local;
+  // No está en este dispositivo: búscalo en la nube (lo subió el otro usuario)
+  try{
+    const cu=await cloudGetFile(k);
+    if(cu){ const b=await dataURLtoBlob(cu); _memFiles.set(k,b); try{ await _idbPut(k,cu); }catch(e){} return b; }
+  }catch(e){}
   return null;
 }
 async function removeFile(k){
   _memFiles.delete(k);
   try{ await _idbDel(k); }catch(e){}
   try{ localStorage.removeItem(LS_PREFIX+k); }catch(e){}
+  try{ await cloudDelFile(k); }catch(e){}
+}
+// ---- Archivos en la nube (Firestore: subcolección "archivos" del doc compartido) ----
+function fileDocRef(k){ return (typeof cloudReady!=="undefined" && cloudReady && docRef) ? docRef.collection("archivos").doc(k) : null; }
+async function cloudPutFile(k,dataURL){
+  const ref=fileDocRef(k); if(!ref||!dataURL||dataURL.length>CLOUD_FILE_MAX) return false;
+  try{ await ref.set({data:dataURL,ts:Date.now()}); return true; }
+  catch(e){ console.warn("No se pudo subir archivo a la nube:",e); return false; }
+}
+async function cloudGetFile(k){
+  const ref=fileDocRef(k); if(!ref) return null;
+  try{ const s=await ref.get(); if(s.exists && s.data() && s.data().data) return s.data().data; }catch(e){}
+  return null;
+}
+async function cloudDelFile(k){ const ref=fileDocRef(k); if(!ref) return; try{ await ref.delete(); }catch(e){} }
+async function cloudPutFileFromBlob(k,blob){
+  if(!fileDocRef(k)) return false;
+  let cloudURL=null;
+  try{
+    if((blob.type||"").startsWith("image")) cloudURL=await compressImage(blob);
+    else { const u=await blobToDataURL(blob); cloudURL=(u.length<CLOUD_FILE_MAX)?u:null; }
+  }catch(e){ return false; }
+  if(!cloudURL) return false;
+  return await cloudPutFile(k,cloudURL);
+}
+// Reduce dimensiones y calidad hasta caber en el límite de Firestore
+async function compressImage(blob,maxDim=1400,quality=0.72){
+  const src=URL.createObjectURL(blob);
+  try{
+    const img=await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; });
+    let w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+    if(Math.max(w,h)>maxDim){ const s=maxDim/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+    function draw(cw,ch){ const c=document.createElement("canvas"); c.width=cw; c.height=ch; c.getContext("2d").drawImage(img,0,0,cw,ch); return c; }
+    let q=quality, url=draw(w,h).toDataURL("image/jpeg",q);
+    while(url.length>CLOUD_FILE_MAX && q>0.4){ q-=0.1; url=draw(w,h).toDataURL("image/jpeg",q); }
+    while(url.length>CLOUD_FILE_MAX && Math.max(w,h)>700){ w=Math.round(w*0.85); h=Math.round(h*0.85); url=draw(w,h).toDataURL("image/jpeg",0.6); }
+    return (url.length<=CLOUD_FILE_MAX)?url:null;
+  } finally { URL.revokeObjectURL(src); }
+}
+// Sube a la nube las imágenes que solo existen en este dispositivo (para que el otro las vea)
+let _filesSynced=false;
+async function syncLocalFilesToCloud(){
+  if(_filesSynced || !(typeof cloudReady!=="undefined" && cloudReady && docRef)) return;
+  _filesSynced=true;
+  const items=[];
+  (data.moodboard||[]).forEach(m=>items.push(m.id));
+  try{ allComprobantes().forEach(c=>items.push(c.id)); }catch(e){}
+  for(const fid of items){
+    try{
+      const ex=await docRef.collection("archivos").doc(fid).get();
+      if(ex.exists) continue;                 // ya está en la nube
+      const blob=await getFileLocal(fid);      // ¿lo tengo localmente?
+      if(blob) await cloudPutFileFromBlob(fid,blob);
+    }catch(e){}
+  }
 }
 function blobToDataURL(b){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(b);}); }
 async function dataURLtoBlob(u){
@@ -1989,7 +2060,6 @@ renderAll();
    No necesitas editar nada aquí; la configuración va en el
    bloque "firebaseConfig" de más arriba.
    ============================================================ */
-let db=null, docRef=null, cloudReady=false, pushT=null, unsubSnap=null;
 
 function showLoginErr(msg){
   const el=document.getElementById("loginErr");
@@ -2023,6 +2093,7 @@ function startCloudSync(){
       data=migrate(remote);
       localStorage.setItem(KEY, JSON.stringify(data));
       renderAll();
+      syncLocalFilesToCloud();   // sube a la nube las imágenes que solo estén en este equipo
     }catch(e){ console.warn("Dato remoto inválido:", e); }
   }, err=>{
     console.warn("Error de sincronización:", err);

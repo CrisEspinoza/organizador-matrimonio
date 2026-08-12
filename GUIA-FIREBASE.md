@@ -75,13 +75,18 @@ Esto es lo que impide que un extraño lea o modifique la información de su matr
    rules_version = '2';
    service cloud.firestore {
      match /databases/{database}/documents {
-       match /matrimonio/datos {
+       match /matrimonio/{document=**} {
          allow read, write: if request.auth != null
            && request.auth.uid in ["UID_DE_CRISTIAN", "UID_DE_KEYLA"];
        }
      }
    }
    ```
+
+   > El `{document=**}` es importante: permite guardar tanto los datos como las
+   > **imágenes y comprobantes** (que se guardan en una subcarpeta), para que ambos
+   > los vean. Si ya tenías la regla con `match /matrimonio/datos`, solo cambia esa
+   > línea por `match /matrimonio/{document=**}` y deja tus dos UID igual.
 
 3. Clic en **Publicar** (Publish).
 
